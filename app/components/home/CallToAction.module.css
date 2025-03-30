@@ -1,0 +1,39 @@
+/* app/components/home/CallToAction.module.css */
+.cta {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 4rem 1rem;
+    background-color: #fff; /* Or another background color */
+  }
+  
+  .cta h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    color: #333;
+  }
+  
+  .cta p {
+    font-size: 1.1rem;
+    color: #555;
+    max-width: 600px; /* Limit text width */
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+  
+  .ctaButton {
+    background-color: #0070f3; /* Example button color */
+    color: #fff;
+    padding: 0.8rem 1.8rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+  }
+  
+  .ctaButton:hover {
+    background-color: #005bb5;
+    color: #fff;
+  }

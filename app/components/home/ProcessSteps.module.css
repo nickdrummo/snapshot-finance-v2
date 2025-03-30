@@ -1,0 +1,28 @@
+/* app/components/home/ProcessSteps.module.css */
+.process {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align items to the top */
+    gap: 3rem; /* Spacing between steps */
+    padding: 2rem 1rem;
+    text-align: center;
+    background-color: #f9f9f9; /* Slight background contrast */
+  }
+  
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .icon {
+    font-size: 2.5rem; /* Adjust icon size */
+    margin-bottom: 0.5rem;
+    /* Add specific icon styling if using icon fonts/SVG */
+  }
+  
+  .step p {
+    font-size: 1rem;
+    color: #444;
+    font-weight: 500;
+  }
