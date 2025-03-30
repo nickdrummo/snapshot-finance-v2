@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import Navbar from '@/components/Navbar';
-import SnapshotCard from '@/components/SnapshotCard';
+import Navbar from '@/app/components/Navbar';
+import SnapshotCard from '@/app/components/SnapshotCard';
 
 export default function Home() {
   useEffect(() => {
