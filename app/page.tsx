@@ -39,18 +39,18 @@ export default function Landing() {
             
             <p className="text-lg text-gray-600 mb-8">
               Upload your bank statement and let our tool analyse your subscription spend. 
-              Get a clear financial snapshot with actionable insights.
+              Get a clear financial snapshot of where your money is going.
             </p>
 
             {/* Feature Bullets */}
             <div className="space-y-4 mb-12">
               <div className="flex items-center space-x-3">
                 <FiUploadCloud className="h-6 w-6 text-blue-500" />
-                <span className="text-gray-700">Instant analysis of PDF & bank statements</span>
+                <span className="text-gray-700">Instant analysis of PDF & image bank statements</span>
               </div>
               <div className="flex items-center space-x-3">
                 <FiDollarSign className="h-6 w-6 text-green-500" />
-                <span className="text-gray-700">Yearly cost projections & savings tips</span>
+                <span className="text-gray-700">Yearly subscription cost projections</span>
               </div>
               <div className="flex items-center space-x-3">
                 <FiShield className="h-6 w-6 text-purple-500" />
