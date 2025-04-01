@@ -1,0 +1,72 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css');
+
+@import "tailwindcss";
+
+:root {
+  /* Accent Colors */
+  --color-accent-blue: #4ae7ff;  /* Primary blue from buttons/headers */
+  --color-accent-blue-dark: #3ec5dc; /* Darker blue for hover states */
+  --color-accent-green: #00C896; /* Green for positive values */
+
+  /* Text Colors */
+  --color-text-primary: #FFFFFF;  /* White text */
+  --color-text-secondary: #B0B0B0; /* Light gray text */
+  
+  /* Background Colors */
+  --color-bg-light: #F5F7FF;  /* Very light blue background */
+  --color-bg-white: #FFFFFF;   /* Pure white */
+}
+
+.card-gradient {
+  background: linear-gradient(
+    185deg,
+    #dafcff 0%,
+    rgb(255, 226, 250) 100%
+  );
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease-in-out, transform 0.2s;
+  text-align: center;
+}
+
+.btn-primary {
+  background: linear-gradient(
+    121deg,
+    #dafcff 0%,
+    rgb(255, 226, 250) 100%
+  );
+  color: var(--color-black);
+  /* border: 1px solid rgb(179, 179, 179); */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+
+}
+
+.btn-primary:hover {
+  background-color: var(--color-accent-blue-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.typingCursor::after {
+  content: '|';
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+
+body {
+  background: var(--color-bg-white)
+}
+
+/* No need for tailwind.config.js colors! */
