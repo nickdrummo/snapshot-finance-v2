@@ -18,16 +18,15 @@ export async function analyseStatement(file: File) {
     }
 
     console.log('File received:', file.name);
+    const fileURL = URL.createObjectURL(file);
+    console.log(fileURL)
     
+    const res = await fetch(fileURL)
+    const buffer = await res.arrayBuffer();
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(new Uint8Array(arrayBuffer));
-
-
-    // Parse the PDF
-    //const pdfParse = require("pdf-parse");
+    const pdfParse = require("pdf-parse");
     const data = await pdfParse(buffer);
-    const extractedText = data.text
+    const extractedText = data.pageData; //
 
     console.log("text 2: ", extractedText);
 
