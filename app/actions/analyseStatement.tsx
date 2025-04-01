@@ -2,6 +2,8 @@
 
 import OpenAI from 'openai';
 import { cookies } from 'next/headers'
+import pdfParse from 'pdf-parse';
+
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
@@ -18,10 +20,12 @@ export async function analyseStatement(file: File) {
     console.log('File received:', file.name);
     
 
-    const buffer = await file.arrayBuffer();
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(new Uint8Array(arrayBuffer));
+
 
     // Parse the PDF
-    const pdfParse = require("pdf-parse");
+    //const pdfParse = require("pdf-parse");
     const data = await pdfParse(buffer);
     const extractedText = data.text
 
