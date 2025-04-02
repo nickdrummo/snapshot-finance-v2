@@ -31,7 +31,7 @@ export default function SnapshotPage () {
         
         if (results) {
           let analysisData;
-          analysisData = JSON.parse(results);
+          analysisData = results;
 
           const enrichedSubscriptions = analysisData.map((sub: Subscription) => ({
             ...sub,
