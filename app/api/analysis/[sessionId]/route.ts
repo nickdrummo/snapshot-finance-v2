@@ -5,8 +5,8 @@ export async function GET(
   request: Request,
   { params }: { params: { sessionId: string } }
 ) {
-  try {                    //await
-    const { sessionId } = params;
+  try {
+    const { sessionId } = await params;
 
     if (!sessionId) {
         return NextResponse.json(
