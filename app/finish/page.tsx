@@ -1,7 +1,7 @@
 'use client'
 
 import { Resend } from 'resend';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FiChevronLeft, FiPieChart, FiDollarSign, FiAward, FiDatabase } from 'react-icons/fi';
 import { getAnalysisResults } from '../actions/getAnalysisResults';
@@ -25,9 +25,15 @@ interface Account {
   totalYearly: number;
 }
 
-
-
 export default function SnapshotPage() {
+  return (
+    <Suspense fallback={<LoadingSpinner />}>
+      <SnapshotContent />
+    </Suspense>
+  );
+}
+
+function SnapshotContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -336,13 +342,13 @@ export default function SnapshotPage() {
     }).format(amount);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  //       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -550,6 +556,14 @@ export default function SnapshotPage() {
         </div>
       </main>
       
+    </div>
+  );
+}
+
+function LoadingSpinner() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
     </div>
   );
 }
