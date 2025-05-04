@@ -17,6 +17,24 @@
   --color-bg-white: #FFFFFF;   /* Pure white */
 }
 
+/* For PDF card hover effect */
+.PDFSnapCard {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.PDFSnapCard:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.download-overlay {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.PDFSnapCard:hover .download-overlay {
+  opacity: 1;
+}
+
 .card-gradient {
   background: linear-gradient(
     185deg,

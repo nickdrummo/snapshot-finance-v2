@@ -1,108 +1,184 @@
-'use client'
+'use client';
 
 import { useState, useCallback, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { FiUploadCloud, FiFile, FiX, FiInfo, FiLock } from 'react-icons/fi';
+import { FiUploadCloud, FiFile, FiX, FiInfo, FiLock, FiPlus, FiMinus } from 'react-icons/fi';
 import Navbar from '@/components/Navbar';
 import { analyseStatement } from '../actions/analyseStatement';
 import { useRouter } from 'next/navigation';
 
+// Pricing configuration
+const PRICING = {
+  basePrice: 7.99,
+  bundles: [
+    { quantity: 1, price: 7.99 },
+    { quantity: 2, price: 12.99 },
+    { quantity: 3, price: 15.99 },
+  ],
+  extraPricePerAccount: 2.00
+};
+
 export default function UploadPage() {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
-
   const router = useRouter();
+
+  const calculatePrice = (qty: number) => {
+    if (qty <= 3) return PRICING.bundles.find(b => b.quantity === qty)?.price || PRICING.basePrice;
+    return PRICING.bundles[2].price + (qty - 3) * PRICING.extraPricePerAccount;
+  };
+
+  const handleQuantityChange = (newQty: number) => {
+    if (newQty < 1) return;
+    setQuantity(newQty);
+    // Auto-remove files if quantity is reduced below current file count
+    if (newQty < files.length) {
+      setFiles(prev => prev.slice(0, newQty));
+    }
+  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setError(null);
-    if (acceptedFiles.length > 0) {
-      const selectedFile = acceptedFiles[0];
-      if (selectedFile.size > 5 * 1024 * 1024) {
-        setError('File size too large (max 5MB)');
-        return;
-      }
-      setFile(selectedFile);
+    const remainingSlots = quantity - files.length;
+    const newFiles = acceptedFiles
+      .filter(file => file.size <= 5 * 1024 * 1024)
+      .slice(0, remainingSlots);
+
+    if (acceptedFiles.length > remainingSlots) {
+      setError(`Only ${remainingSlots} more file${remainingSlots > 1 ? 's' : ''} needed`);
     }
-  }, []);
+
+    setFiles(prev => [...prev, ...newFiles]);
+  }, [files.length, quantity]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'image/*': ['.png', '.jpg', '.jpeg']
-    },
-    maxFiles: 1
+    accept: { 'application/pdf': ['.pdf'], 'image/*': ['.png', '.jpg', '.jpeg'] },
+    maxFiles: quantity,
+    multiple: true
   });
 
-  const removeFile = () => {
-    setFile(null);
-    setError(null);
+  const removeFile = (index: number) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file) return;
+    if (files.length !== quantity) {
+      setError(`Please upload exactly ${quantity} file${quantity > 1 ? 's' : ''}`);
+      return;
+    }
     
     setIsSubmitting(true);
     try {
-      const result = await analyseStatement(file)
-      console.log('Analysis complete:', result)
-      router.push('/finish');
-      router.refresh();
+      const result = await analyseStatement(files);
+      console.log(result)
+      if (result.success && result.sessionId) {
+        router.push(`/checkout?sessionId=${result.sessionId}`);
+      } else {
+        throw new Error('Failed to create analysis session');
+      }
     } catch (err) {
-      setError('Analysis failed. Please try again.');
-      console.error(err);
+      setError('Processing failed. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
-  
+
+  const totalPrice = calculatePrice(quantity);
+  const isBundle = quantity <= 3;
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <Navbar/>
+      <Navbar />
 
       <main className="max-w-md mx-auto px-4 py-5 pb-16">
-        {/* Header Section */}
         <div className="text-center mb-8">
-          <h2 className="text-2xl text-gray-800 mb-4">Upload bank statement</h2>
+          <h2 className="text-2xl text-gray-800 mb-4">Analyze Multiple Bank Accounts</h2>
           <p className="text-gray-600">
-            For best results PDF files are recommended. Images are accepted but may produce varying results.
+            Upload statements from different accounts and save with our bundle pricing
           </p>
         </div>
 
-        <form ref={formRef} onSubmit={handleSubmit} encType="multipart/form-data">
-          {/* Upload Card */}
+        <form ref={formRef} onSubmit={handleSubmit}>
+          {/* Quantity Selector */}
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-medium">Number of Bank Accounts</h3>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => handleQuantityChange(quantity - 1)}
+                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+                >
+                  <FiMinus className="w-4 h-4" />
+                </button>
+                <span className="w-8 text-center font-medium">{quantity}</span>
+                <button
+                  type="button"
+                  onClick={() => handleQuantityChange(quantity + 1)}
+                  className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+                >
+                  <FiPlus className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Price Breakdown */}
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between text-gray-600">
+                <span>{quantity} account{quantity > 1 ? 's' : ''}</span>
+                <span className="font-medium text-gray-900">
+                  ${isBundle ? PRICING.bundles.find(b => b.quantity === quantity)?.price : (
+                    <>
+                      {PRICING.bundles[2].price} + {quantity - 3} × ${PRICING.extraPricePerAccount}
+                    </>
+                  )}
+                </span>
+              </div>
+              <div className="flex justify-between font-medium text-blue-600">
+                <span>Total Price</span>
+                <span>${totalPrice.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Upload Section */}
           <div 
-            {...getRootProps()} 
+            {...getRootProps()}
             className={`bg-white rounded-2xl shadow-sm border-2 border-dashed hover:border-blue-400 transition-colors ${
               isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-            }`}
+            } ${files.length === quantity ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
-            <div className="p-8 text-center cursor-pointer">
+            <div className="p-8 text-center">
               <div className="space-y-4">
                 <FiUploadCloud className="h-12 w-12 text-blue-500 mx-auto" />
                 <div className="space-y-2">
                   <h3 className="text-lg font-medium text-gray-900">
-                    {isDragActive ? 'Drop file here' : 'Drag & drop file'}
+                    {files.length}/{quantity} Files Uploaded
                   </h3>
                   <p className="text-sm text-gray-500">
-                    or click to select
+                    {files.length === quantity ? 
+                      'All files uploaded' : 
+                      'Drag & drop or click to select'
+                    }
                   </p>
                 </div>
                 <p className="text-xs text-gray-400 flex items-center justify-center">
                   <FiLock className="h-3 w-3 mr-1" />
-                  Secure encrypted processing
+                  Each file encrypted separately
                 </p>
               </div>
-              <input {...getInputProps({ name: 'file' })} />
+              <input {...getInputProps({ name: 'files' })} disabled={files.length === quantity} />
             </div>
           </div>
 
-          {/* File Preview */}
-          {file && (
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+          {/* Uploaded Files */}
+          {files.map((file, index) => (
+            <div key={file.name} className="mt-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
               <div className="flex items-center space-x-2 truncate">
                 <FiFile className="h-4 w-4 text-blue-500 flex-shrink-0" />
                 <span className="text-sm text-gray-700 truncate">{file.name}</span>
@@ -110,24 +186,15 @@ export default function UploadPage() {
               </div>
               <button 
                 type="button"
-                onClick={removeFile}
+                onClick={() => removeFile(index)}
                 className="text-gray-400 hover:text-red-500"
               >
                 <FiX className="h-4 w-4" />
               </button>
             </div>
-          )}
+          ))}
 
-          {/* Yearly Statement Tip */}
-          <div className="mt-4 flex items-start bg-blue-50 p-3 rounded-lg">
-            <FiInfo className="h-5 w-5 text-blue-600 mr-2 mt-1 flex-shrink-0" />
-            <p className="text-sm text-blue-800">
-              Uploading a yearly statement can improve the 
-              detection of annual subscriptions and price changes.
-            </p>
-          </div>
-
-          {/* Error Message */}
+          {/* Error Messages */}
           {error && (
             <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-lg flex items-center text-sm">
               <FiX className="h-4 w-4 mr-1" />
@@ -138,7 +205,7 @@ export default function UploadPage() {
           {/* Submit Button */}
           <button 
             type="submit"
-            disabled={!file || isSubmitting}
+            disabled={files.length !== quantity || isSubmitting}
             className={`mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors ${
               isSubmitting ? 'opacity-75 cursor-wait' : ''
             }`}
@@ -151,7 +218,9 @@ export default function UploadPage() {
                 </svg>
                 Processing...
               </span>
-            ) : 'Analyse Subscriptions'}
+            ) : (
+              `Pay $${totalPrice.toFixed(2)} & Analyze`
+            )}
           </button>
         </form>
       </main>

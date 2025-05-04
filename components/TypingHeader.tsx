@@ -3,8 +3,8 @@ import '../app/styles/globals.css';
 
 const useTextCycler = (
   phrases: string[],
-  interval: number = 4000,
-  typingSpeed: number = 100
+  interval: number = 2500,
+  typingSpeed: number = 70
 ): string => {
   const [text, setText] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState<boolean>(false);

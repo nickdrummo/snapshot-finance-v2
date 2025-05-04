@@ -1,159 +1,234 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { FiUploadCloud, FiFile, FiX, FiInfo, FiLock } from 'react-icons/fi';
 import Navbar from '@/components/Navbar';
-import { analyseStatement } from '../actions/analyseStatement';
-import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { FiFileText, FiArrowRight, FiPieChart, FiList, FiLock, FiDollarSign } from 'react-icons/fi';
+import Link from 'next/link';
+import SnapshotCard from '@/components/SnapshotCard';
+import CheckoutButton from '@/components/CheckoutButton';
+import { getAnalysisResults } from '../actions/getAnalysisResults';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
-export default function UploadPage() {
-  const [file, setFile] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const formRef = useRef<HTMLFormElement>(null);
+type Frequency = 'monthly' | 'yearly' | 'weekly' | 'fortnightly' | 'quarterly' | string;
 
-  const router = useRouter();
+interface Subscription {
+  id: number;
+  name: string;
+  cost: number;
+  frequency: Frequency;
+  yearly: number;
+  accountTitle: string;
+}
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    setError(null);
-    if (acceptedFiles.length > 0) {
-      const selectedFile = acceptedFiles[0];
-      if (selectedFile.size > 5 * 1024 * 1024) {
-        setError('File size too large (max 5MB)');
-        return;
-      }
-      setFile(selectedFile);
-    }
-  }, []);
+export default function CheckoutPage() {
+    const searchParams = useSearchParams();
+    const sessionId = searchParams.get('sessionId');
+    const router = useRouter();
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [price, setPrice] = useState<string>('');
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    accept: {
-      'application/pdf': ['.pdf'],
-      'image/*': ['.png', '.jpg', '.jpeg']
-    },
-    maxFiles: 1
-  });
+    useEffect(() => {
+        const fetchData = async () => {
+          try {
+            if (!sessionId) return;
 
-  const removeFile = () => {
-    setFile(null);
-    setError(null);
-  };
+            const response = await fetch(`/api/analysis/${sessionId}`);
+            const results = await response.json();
+       
+            if (results) {
+              let analysisData;
+              analysisData = results.subscriptions;
+              setPrice(formatCurrency(results.snapshot_price));
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file) return;
+              const enrichedSubscriptions = analysisData.map((sub: Subscription) => ({
+                ...sub,
+                yearly: calculateYearlyCost(sub)
+              }));
+              
+              setSubscriptions(enrichedSubscriptions);
+            }
+          } catch (error) {
+            console.error('Error fetching analysis results:', error);
+          } finally {
+            setIsLoading(false);
+          }
+        };
     
-    setIsSubmitting(true);
-    try {
-      const result = await analyseStatement(file)
-      console.log('Analysis complete:', result)
-      router.push('/finish');
-      router.refresh();
-    } catch (err) {
-      setError('Analysis failed. Please try again.');
-      console.error(err);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <Navbar/>
+        fetchData();
+      }, []);
+    
+      const calculateYearlyCost = (sub: Subscription): number => {
+        const freq = sub.frequency.toLowerCase();
+        switch (freq) {
+          case 'monthly': return sub.cost * 12;
+          case 'weekly': return sub.cost * 52;
+          case 'fortnightly': return sub.cost * 27;
+          case 'yearly': return sub.cost;
+          case 'quarterly': return sub.cost * 4;
+          default: return sub.cost; // Default to monthly calculation
+        }
+      };
+    
+      const totalYearly: number = subscriptions.reduce(
+        (sum: number, sub) => sum + (typeof sub.yearly === 'number' ? sub.yearly : 0), 
+        0
+      );
+    
+      const mostExpensive: Subscription = subscriptions.reduce(
+        (max: Subscription, sub: Subscription) => {
+          const yearlyCost = typeof sub.yearly === 'number' ? sub.yearly : 0;
+          return yearlyCost > (typeof max.yearly === 'number' ? max.yearly : 0) 
+            ? { ...sub, yearly: yearlyCost } 
+            : max;
+        }, 
+        { id: -1, name: '', cost: 0, frequency: '', yearly: 0, accountTitle: '' }
+      );
+    
+      const formatCurrency = (amount: number): string => {
+        return new Intl.NumberFormat('en-AU', {
+          style: 'currency',
+          currency: 'AUD',
+        }).format(amount);
+      };
+    
+      if (isLoading) {
+        return (
+          <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+        );
+      }
+    
 
-      <main className="max-w-md mx-auto px-4 py-5 pb-16">
-        {/* Header Section */}
-        <div className="text-center mb-8">
-          <h2 className="text-2xl text-gray-800 mb-4">Upload bank statement</h2>
-          <p className="text-gray-600">
-            For best results PDF files are recommended. Images are accepted but may produce varying results.
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#F5F7FF] to-[#FFFFFF]">
+      <Navbar />
+
+      <main className="max-w-5xl mx-auto px-4 py-12">
+        {/* Hero CTA */}
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center mb-16"
+        >
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Your Subscription Snapshot
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            See exactly where your money is going each year
           </p>
+        </motion.div>
+
+        {/* Focused Stats Grid */}
+        <div className="grid md:grid-cols-2 gap-6 mb-16 max-w-2xl mx-auto">
+          {/* Yearly Spend - Now More Prominent */}
+          <motion.div
+            whileHover={{ y: -4 }}
+            className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"
+          >
+            <div className="flex items-center mb-3">
+              <div className="bg-blue-100 p-2 rounded-lg mr-3">
+                <FiPieChart className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold">Yearly Spend</h3>
+            </div>
+            <p className="text-4xl font-bold text-gray-900 mb-1">
+              {formatCurrency(totalYearly)}
+            </p>
+            <p className="text-sm text-gray-500">
+              That's {formatCurrency(totalYearly / 12)} monthly
+            </p>
+          </motion.div>
+
+          {/* Subscription Count - Enhanced */}
+          <motion.div
+            whileHover={{ y: -4 }}
+            className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100"
+          >
+            <div className="flex items-center mb-3">
+              <div className="bg-purple-100 p-2 rounded-lg mr-3">
+                <FiList className="h-6 w-6 text-purple-600" />
+              </div>
+              <h3 className="text-lg font-semibold">Active Subscriptions</h3>
+            </div>
+            <p className="text-4xl font-bold text-gray-900 mb-1">
+              {subscriptions.length}
+            </p>
+            <p className="text-sm text-gray-500">
+              Recurring services found
+            </p>
+          </motion.div>
         </div>
 
-        <form ref={formRef} onSubmit={handleSubmit} encType="multipart/form-data">
-          {/* Upload Card */}
-          <div 
-            {...getRootProps()} 
-            className={`bg-white rounded-2xl shadow-sm border-2 border-dashed hover:border-blue-400 transition-colors ${
-              isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-            }`}
-          >
-            <div className="p-8 text-center cursor-pointer">
-              <div className="space-y-4">
-                <FiUploadCloud className="h-12 w-12 text-blue-500 mx-auto" />
-                <div className="space-y-2">
-                  <h3 className="text-lg font-medium text-gray-900">
-                    {isDragActive ? 'Drop file here' : 'Drag & drop file'}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    or click to select
-                  </p>
-                </div>
-                <p className="text-xs text-gray-400 flex items-center justify-center">
-                  <FiLock className="h-3 w-3 mr-1" />
-                  Secure encrypted processing
-                </p>
-              </div>
-              <input {...getInputProps({ name: 'file' })} />
+
+        {/* Premium Report Card with Sample */}
+        <div className="grid md:grid-cols-2 gap-8 items-start mt-12">
+        {/* Sample Report - Left Side */}
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="relative"
+        >
+            <div className="card-gradient rounded-2xl shadow-xl">
+            <div className="p-6">
+                <SnapshotCard
+                date="29th March 2025"
+                totalSpend={formatCurrency(totalYearly)}
+                mostExpensive={{ name: mostExpensive.name, amount: formatCurrency(mostExpensive.yearly) }}
+                subscriptions={[
+                    { name: '██████', amount: '$██.██',  yearly: '$███.██' },
+                    { name: '████ ██', amount: '$██.██',   yearly: '$███.██' },
+                    { name: '████████', amount: '$██.██',  yearly: '$███.██' }
+                ]}
+                />
             </div>
+            {/* <div className="absolute inset-0 flex items-center justify-center">
+                <button className="bg-white/90 hover:bg-white px-4 py-2 rounded-full shadow-md border border-gray-200 font-medium text-sm flex items-center transition-all">
+                View Sample
+                </button>
+            </div> */}
+            </div>
+        </motion.div>
+
+        {/* Payment Box - Right Side */}
+        <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white rounded-2xl shadow-sm p-6 h-full"
+        >
+            <div className="flex flex-col items-center text-center mb-6">
+            <FiFileText className="h-12 w-12 text-blue-500 mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Full Snapshot Report</h2>
+            <p className="text-gray-600">One-time payment • Permanent access</p>
+            </div>
+
+            <div className="bg-blue-50 rounded-xl p-6 text-center mb-6">
+            <div className="flex items-center justify-center space-x-2 mb-3">
+                <span className="text-3xl font-bold text-gray-900">{price}</span>
+            </div>
+            <p className="text-sm text-gray-600">7-day money back guarantee</p>
+            </div>
+
+            <CheckoutButton sessionId={sessionId as string} />
+            
+            <div className="mt-4 text-center text-sm text-gray-500 flex items-center justify-center">
+            <FiLock className="h-4 w-4 mr-1" />
+            Secure 256-bit SSL encryption
+            </div>
+        </motion.div>
+        </div>
+
+        {/* Simple Trust Assurance */}
+        <div className="max-w-md mx-auto mt-12 text-center text-sm text-gray-500">
+          <div className="flex items-center justify-center space-x-2">
+            <FiLock className="h-4 w-4" />
+            <span>Secure payment • No recurring charges</span>
           </div>
-
-          {/* File Preview */}
-          {file && (
-            <div className="mt-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
-              <div className="flex items-center space-x-2 truncate">
-                <FiFile className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                <span className="text-sm text-gray-700 truncate">{file.name}</span>
-                <span className="text-xs text-gray-500">{(file.size / 1024 / 1024).toFixed(2)}MB</span>
-              </div>
-              <button 
-                type="button"
-                onClick={removeFile}
-                className="text-gray-400 hover:text-red-500"
-              >
-                <FiX className="h-4 w-4" />
-              </button>
-            </div>
-          )}
-
-          {/* Yearly Statement Tip */}
-          <div className="mt-4 flex items-start bg-blue-50 p-3 rounded-lg">
-            <FiInfo className="h-5 w-5 text-blue-600 mr-2 mt-1 flex-shrink-0" />
-            <p className="text-sm text-blue-800">
-              Uploading a yearly statement can improve the 
-              detection of annual subscriptions and price changes.
-            </p>
-          </div>
-
-          {/* Error Message */}
-          {error && (
-            <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-lg flex items-center text-sm">
-              <FiX className="h-4 w-4 mr-1" />
-              <span>{error}</span>
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <button 
-            type="submit"
-            disabled={!file || isSubmitting}
-            className={`mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors ${
-              isSubmitting ? 'opacity-75 cursor-wait' : ''
-            }`}
-          >
-            {isSubmitting ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing...
-              </span>
-            ) : 'Analyse Subscriptions'}
-          </button>
-        </form>
+        </div>
       </main>
     </div>
   );

@@ -2,80 +2,89 @@
 
 import { GoogleGenAI } from '@google/genai';
 import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { revalidatePath } from 'next/cache';
+import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '@/lib/supabase';
 
-export async function analyseStatement(file: File) {
+interface Subscription {
+  id: number;
+  name: string;
+  cost: number;
+  frequency: string;
+  yearly: string;
+  accountTitle: string;
+}
+
+interface BankAnalysis {
+  accountTitle: string;
+  subscriptions: Omit<Subscription, 'id' | 'accountTitle'>[];
+}
+
+const PRICING = {
+  basePrice: 7.99,
+  bundles: [
+    { quantity: 1, price: 7.99 },
+    { quantity: 2, price: 12.99 },
+    { quantity: 3, price: 15.99 },
+  ],
+  extraPricePerAccount: 2.00
+};
+
+
+
+export async function analyseStatement(files: File[]) {
+  const calculatePrice = (qty: number) => {
+    if (qty <= 3) return PRICING.bundles.find(b => b.quantity === qty)?.price || PRICING.basePrice;
+    return PRICING.bundles[2].price + (qty - 3) * PRICING.extraPricePerAccount;
+  };
+
   try {
-    console.log("Starting Gemini analysis...");
+    console.log("Starting multi-account analysis with Gemini...");
+    
+    if (!files?.length) throw new Error('No files uploaded');
+    
+    const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+    const allSubscriptions: Subscription[] = [];
+    let globalId = 0;
 
-    if (!file) {
-      console.log("No file uploaded.");
-      throw new Error('No file uploaded');
-    }
+    //intialise session id for each analysis.
+    const sessionId = uuidv4();
 
-    console.log('File received:', file.name);
 
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    for (const [index, file] of files.entries()) {
+      console.log(`Processing statement ${index + 1}/${files.length}`);
+      
+      const arrayBuffer = await file.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
 
-    // Initialize Gemini API
-    const geminiApiKey = process.env.GEMINI_API_KEY;
-    if (!geminiApiKey) {
-      throw new Error('Gemini API key is not set in environment variables.');
-    }
-    const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const base64Data = buffer.toString('base64');
+      const mimeType = file.type; // e.g., 'application/pdf'
 
-    const base64Data = buffer.toString('base64');
-    const mimeType = file.type; // e.g., 'application/pdf'
+      const prompt = `Analyse the content of the attached bank statement to find all 
+      subscriptions present. Find the cost of each subscription and the frequency. Output 
+      the results as a JSON object, with each subscription listed with an id (starting at 0)
+       and its associated name, cost, and frequency. Include a column named yearly but do not 
+       fill any data in this column, leaving it as -. If it is not clear the frequency of a 
+       subscription (ie only one payment showing in a monthly statement), use information 
+       available from the actual subscriptions company about the usual pricing + frequency plans 
+       available. Make sure you only output the JSON object and nothing else.
+      Identify the bank name and account title from header
 
-    const prompt = `Analyse the content of the attached bank statement to find all subscriptions present. Find the cost of each subscription and the frequency. Output the results as a JSON object, with each subscription listed with an id (starting at 0) and its associated name, cost, and frequency. Include a column named yearly but do not fill any data in this column, leaving it as -. If it is not clear the frequency of a subscription (ie only one payment showing in a monthly statement), use information available from the actual subscriptions company about the usual pricing + frequency plans available. Make sure you only output the JSON object and nothing else.
-          follow this example:
-
-          [
+        {
+          "accountTitle": "Bank Name - Account Type",
+          "subscriptions": [
             {
-              "id": 0,
-              "name": "Anytime Fitness",
-              "cost": 17.95,
-              "frequency": "fortnightly",
-              "yearly": "-"
-            },
-            {
-              "id": 1,
-              "name": "Spotify",
+              "name": "Service Name",
               "cost": 12.99,
-              "frequency": "monthly",
-              "yearly": "-"
-            },
-            {
-              "id": 2,
-              "name": "Vodafone",
-              "cost": 35.00,
-              "frequency": "monthly",
-              "yearly": "-"
-            },
-            {
-              "id": 3,
-              "name": "Apple.com",
-              "cost": 2.99,
-              "frequency": "monthly",
-              "yearly": "-"
-            },
-            {
-              "id": 4,
-              "name": "DoorDash DashPass",
-              "cost": 9.99,
               "frequency": "monthly",
               "yearly": "-"
             }
           ]
-          `;
+        }
+        Use official bank names (e.g., "CommBank Smart Access", "ANZ Progress Saver")`;
 
-    console.log('Sending request to Gemini...');
-    const result = await genAI.models.generateContent({
-      model: "gemini-2.5-pro-exp-03-25",
-      contents: [
-        {
+      const result = await genAI.models.generateContent({
+        model: "gemini-2.5-pro-exp-03-25",
+        contents: [{
           role: 'user',
           parts: [
             { text: prompt },
@@ -86,36 +95,61 @@ export async function analyseStatement(file: File) {
               },
             },
           ],
-        },
-      ],
-    });
-    console.log('Response received from Gemini.');
+        }],
+      });
 
-    const responseText = result.text;
+      const responseText = result.text;
+      if (!responseText) throw new Error('No Gemini response');
 
-    if (!responseText) {
-      throw new Error('No analysis was generated by Gemini.');
+      try {
+        const jsonStart = responseText.indexOf('{');
+        const jsonEnd = responseText.lastIndexOf('}');
+        const jsonString = responseText.slice(jsonStart, jsonEnd + 1);
+        const analysis: BankAnalysis = JSON.parse(jsonString);
+
+        const processed = analysis.subscriptions.map(sub => ({
+          ...sub,
+          id: globalId++,
+          accountTitle: analysis.accountTitle || `Account ${index + 1}`
+        }));
+
+        allSubscriptions.push(...processed);
+      } catch (parseError) {
+        console.error('Parsing failed:', parseError, responseText);
+        throw new Error('Failed to parse bank account details');
+      }
     }
 
-    // Attempt to parse the JSON response
-    let analysis: any;
-    try {
-      // Gemini might include extra text around the JSON, so we need to be careful
-      const jsonStartIndex = responseText.indexOf('[');
-      const jsonEndIndex = responseText.lastIndexOf(']');
-      const jsonString = responseText.substring(jsonStartIndex, jsonEndIndex + 1);
-      analysis = JSON.parse(jsonString);
-    } catch (error) {
-      console.error('Error parsing Gemini response as JSON:', error, responseText);
-      throw new Error('Could not parse Gemini response as JSON.');
-    }
+    console.log(allSubscriptions);
 
-    console.log('Saving analysis results to cookies...');
-    (await cookies()).set('analysis_results', JSON.stringify(analysis));
 
-    return { message: 'Analysis complete', analysis };
+    // Save to cookies (consider database storage for production)
+    // (await cookies()).set('analysis_results', JSON.stringify(allSubscriptions));
+
+    //store in supabase 
+    const { error } = await supabase
+      .from('analysis_sessions')
+      .insert({
+        session_id: sessionId,
+        data: allSubscriptions,
+        snapshot_price: calculatePrice(files.length),
+        expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) // 1 week
+
+      });
+
+    if (error) throw error;
+
+
+    return { 
+      success: true,
+      sessionId,
+      subscriptions: allSubscriptions
+    };
   } catch (error: any) {
-    console.error('Error during Gemini analysis:', error);
-    throw new Error('Gemini analysis failed: ' + (error instanceof Error ? error.message : String(error)));
+    console.error('Analysis error:', error);
+    return {
+      success: false,
+      error: error.message
+    };
   }
 }
