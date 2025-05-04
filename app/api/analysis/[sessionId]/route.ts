@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 
 export async function GET(
   request: Request,
-  { params }: { params: { sessionId: string } }
+  { params }: { params: Promise<{ sessionId: string }> }
 ) {
   try {
     const { sessionId } = await params;
