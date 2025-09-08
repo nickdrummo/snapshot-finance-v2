@@ -106,7 +106,11 @@ export default function UploadPage() {
     }
     
     setIsSubmitting(true);
-    setShowModal(true);
+    
+    // Show modal after 0.5 second delay
+    setTimeout(() => {
+      setShowModal(true);
+    }, 500);
     
     try {
       const result = await analyseStatement(files);
