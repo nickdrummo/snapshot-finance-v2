@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { FiUploadCloud, FiFile, FiX, FiInfo, FiLock, FiPlus, FiMinus, FiClock } from 'react-icons/fi';
+import { FiUploadCloud, FiFile, FiX, FiInfo, FiLock, FiPlus, FiMinus, FiClock, FiDollarSign, FiAlertCircle } from 'react-icons/fi';
 import Navbar from '@/components/Navbar';
 import { analyseStatement } from '../actions/analyseStatement';
 import { useRouter } from 'next/navigation';
@@ -23,7 +23,7 @@ function ProcessingModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-grey bg-opacity-10 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-gray-200/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
@@ -137,7 +137,7 @@ export default function UploadPage() {
 
       <main className="max-w-md mx-auto px-4 py-5 pb-16">
         <div className="text-center mb-8">
-          <h2 className="text-2xl text-gray-800 mb-4">Analyze Multiple Bank Accounts</h2>
+          <h2 className="text-2xl text-gray-800 mb-4">Analyse Multiple Bank Accounts</h2>
           <p className="text-gray-600">
             Upload statements from different accounts and save with our bundle pricing
           </p>
@@ -184,6 +184,15 @@ export default function UploadPage() {
               <div className="flex justify-between font-medium text-blue-600">
                 <span>Total Price</span>
                 <span>${totalPrice.toFixed(2)}</span>
+              </div>
+            </div>
+            
+            {/* Payment Information Message */}
+            <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+              <div className="flex items-start">
+                <FiInfo className="h-4 w-4 text-blue-600 mt-0.5 mr-2 flex-shrink-0" />
+                <p className="text-xs text-blue-700">
+                    Before you pay, we’ll show you your total yearly subscription cost - so you’ll know exactly whether it’s worth it.                </p>
               </div>
             </div>
           </div>
@@ -253,7 +262,7 @@ export default function UploadPage() {
               (files.length !== quantity || isSubmitting) ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {isSubmitting ? 'Processing...' : 'Analyse'}
+            {isSubmitting ? 'Processing...' : 'See your spend ->'}
           </button>
         </form>
       </main>
