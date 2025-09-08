@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { FiUploadCloud, FiFile, FiX, FiInfo, FiLock, FiPlus, FiMinus } from 'react-icons/fi';
+import { FiUploadCloud, FiFile, FiX, FiInfo, FiLock, FiPlus, FiMinus, FiClock } from 'react-icons/fi';
 import Navbar from '@/components/Navbar';
 import { analyseStatement } from '../actions/analyseStatement';
 import { useRouter } from 'next/navigation';
@@ -18,11 +18,44 @@ const PRICING = {
   extraPricePerAccount: 2.00
 };
 
+// Processing Modal Component
+function ProcessingModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
+            <FiClock className="h-6 w-6 text-blue-600" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Processing Your Analysis
+          </h3>
+          <p className="text-sm text-gray-600 mb-6">
+            Please wait while we analyze your bank statements. This process may take up to 1 minute to complete.
+          </p>
+          <div className="flex items-center justify-center mb-4">
+            <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </div>
+          <p className="text-xs text-gray-500">
+            Do not close this window or navigate away from the page.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function UploadPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
 
@@ -73,6 +106,8 @@ export default function UploadPage() {
     }
     
     setIsSubmitting(true);
+    setShowModal(true);
+    
     try {
       const result = await analyseStatement(files);
       console.log(result)
@@ -83,6 +118,7 @@ export default function UploadPage() {
       }
     } catch (err) {
       setError('Processing failed. Please try again.');
+      setShowModal(false);
     } finally {
       setIsSubmitting(false);
     }
@@ -113,6 +149,7 @@ export default function UploadPage() {
                   type="button"
                   onClick={() => handleQuantityChange(quantity - 1)}
                   className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+                  disabled={isSubmitting}
                 >
                   <FiMinus className="w-4 h-4" />
                 </button>
@@ -121,6 +158,7 @@ export default function UploadPage() {
                   type="button"
                   onClick={() => handleQuantityChange(quantity + 1)}
                   className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200"
+                  disabled={isSubmitting}
                 >
                   <FiPlus className="w-4 h-4" />
                 </button>
@@ -151,7 +189,7 @@ export default function UploadPage() {
             {...getRootProps()}
             className={`bg-white rounded-2xl shadow-sm border-2 border-dashed hover:border-blue-400 transition-colors ${
               isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-200'
-            } ${files.length === quantity ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+            } ${files.length === quantity || isSubmitting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             <div className="p-8 text-center">
               <div className="space-y-4">
@@ -172,7 +210,7 @@ export default function UploadPage() {
                   Each file encrypted separately
                 </p>
               </div>
-              <input {...getInputProps({ name: 'files' })} disabled={files.length === quantity} />
+              <input {...getInputProps({ name: 'files' })} disabled={files.length === quantity || isSubmitting} />
             </div>
           </div>
 
@@ -188,6 +226,7 @@ export default function UploadPage() {
                 type="button"
                 onClick={() => removeFile(index)}
                 className="text-gray-400 hover:text-red-500"
+                disabled={isSubmitting}
               >
                 <FiX className="h-4 w-4" />
               </button>
@@ -207,23 +246,16 @@ export default function UploadPage() {
             type="submit"
             disabled={files.length !== quantity || isSubmitting}
             className={`mt-8 w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium transition-colors ${
-              isSubmitting ? 'opacity-75 cursor-wait' : ''
+              (files.length !== quantity || isSubmitting) ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {isSubmitting ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin h-4 w-4 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing...
-              </span>
-            ) : (
-              `Pay $${totalPrice.toFixed(2)} & Analyze`
-            )}
+            {isSubmitting ? 'Processing...' : 'Analyse'}
           </button>
         </form>
       </main>
+
+      {/* Processing Modal */}
+      <ProcessingModal isOpen={showModal} onClose={() => setShowModal(false)} />
     </div>
   );
 }
