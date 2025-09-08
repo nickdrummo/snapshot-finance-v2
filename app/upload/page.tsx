@@ -23,17 +23,17 @@ function ProcessingModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-grey bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
         <div className="text-center">
           <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 mb-4">
             <FiClock className="h-6 w-6 text-blue-600" />
           </div>
           <h3 className="text-lg font-medium text-gray-900 mb-2">
-            Processing Your Analysis
+            Analysing your statements.
           </h3>
           <p className="text-sm text-gray-600 mb-6">
-            Please wait while we analyze your bank statements. This process may take up to 1 minute to complete.
+            This may take up to a minute. Please sit tight!
           </p>
           <div className="flex items-center justify-center mb-4">
             <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -42,7 +42,7 @@ function ProcessingModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => 
             </svg>
           </div>
           <p className="text-xs text-gray-500">
-            Do not close this window or navigate away from the page.
+            Please do not close this window.
           </p>
         </div>
       </div>
