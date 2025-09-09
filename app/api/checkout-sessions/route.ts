@@ -8,7 +8,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 });
 
 // Use existing product ID from your Stripe dashboard
-const STRIPE_PRODUCT_ID = 'prod_S3k0RRJm8WAeLt'; // Replace with your actual product ID
+const STRIPE_PRODUCT_ID = 'prod_T1MUoXEW5piNi0'; // Replace with your actual product ID
 
 export async function POST(req: NextRequest) {
   const { sessionId } = await req.json();
