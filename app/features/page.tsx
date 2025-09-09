@@ -56,42 +56,35 @@ export default function FeaturesPage() {
 
           <div className="relative">
             {/* The Vertical Line */}
-            <div className="hidden md:block absolute left-1/2 top-0 bottom-0 -translate-x-1/2 w-1 bg-gray-200"></div>
 
             {/* Step 1 */}
             <div className="relative flex justify-start items-center w-full mb-12">
-              <div className="w-full md:w-1/2 md:pr-16">
                 <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-200">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">1. Securely Upload Your Statements</h3>
                   <p className="text-gray-600 text-sm">
                     Start by gathering your bank statements. Our tool accepts PDFs and images from any bank. Your files are never stored on our servers, ensuring your data remains private and secure from the very first step.
                   </p>
                 </div>
-              </div>
             </div>
 
             {/* Step 2 */}
             <div className="relative flex justify-end items-center w-full mb-12">
-              <div className="w-full md:w-1/2 md:pl-16">
                 <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-200">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">2. Get Your Free Preview</h3>
                   <p className="text-gray-600 text-sm">
                     Instantly, our system analyses your statements to identify recurring payments. Before you pay anything, we show you a free preview: your total number of subscriptions, your total annual spend, and your single most expensive subscription. This allows you to see the value upfront.
                   </p>
                 </div>
-              </div>
             </div>
 
             {/* Step 3 */}
             <div className="relative flex justify-start items-center w-full">
-              <div className="w-full md:w-1/2 md:pr-16">
                 <div className="p-6 bg-white rounded-2xl shadow-md border border-gray-200">
                   <h3 className="text-xl font-bold text-gray-900 mb-2">3. Unlock Your Full Report</h3>
                   <p className="text-gray-600 text-sm">
                     If you like what you see, a single one-time payment unlocks your complete, detailed report. This includes a full breakdown of every subscription across all accounts, plus an emailed copy for your records. No recurring fees, just permanent access to your insights.
                   </p>
                 </div>
-              </div>
             </div>
           </div>
         </motion.div>  
