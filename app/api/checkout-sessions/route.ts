@@ -59,6 +59,7 @@ export async function POST(req: NextRequest) {
       mode: 'payment',
       success_url: successUrl,
       cancel_url: cancelUrl,
+      allow_promotion_codes: true, // Add this line to enable the coupon field
       metadata: {
         product_id: STRIPE_PRODUCT_ID,
       },
