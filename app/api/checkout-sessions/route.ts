@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
 
   const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
   const successUrl = `${origin}/finish?sessionId=${sessionId}&session_id={CHECKOUT_SESSION_ID}`;
-  const cancelUrl = `${origin}/checkout?sessionId=${sessionId}}`;
+  const cancelUrl = `${origin}/checkout?sessionId=${sessionId}`;
 
   try {
     // Get the product details from Stripe
