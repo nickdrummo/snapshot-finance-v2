@@ -10,7 +10,7 @@ import {FiUploadCloud, FiPieChart, FiShield, FiDollarSign, FiTrendingUp, FiSmart
 export default function Landing() {
     const subscriptions = [
         { name: 'Vodafone AU', amount: '$30.00', frequency: 'Monthly', yearly: '$360.00' },
-        { name: 'Anytime Fitness', amount: '$17.95', frequency: 'Fortnightly', yearly: '$432.00' },
+        { name: 'Anytime Fitness', amount: '$17.95', frequency: 'Weekly', yearly: '$933.40' },
         { name: 'Spotify', amount: '$12.99', frequency: 'Monthly', yearly: '$155.88' },
         { name: 'Apple', amount: '$2.99', frequency: 'Monthly', yearly: '$35.88' },
         { name: 'RevenueNSW', amount: '$50.00', frequency: 'Fortnightly', yearly: '$1200.00' },
@@ -126,24 +126,59 @@ export default function Landing() {
                     </motion.div>
 
                     {/* Right Column - Preview Card */}
-                    <motion.div 
+                    {/* Right Column - Email Preview Card */}
+                    <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.5, delay: 0.2 }}
                         className="relative"
                     >
-                        <div className="card-gradient rounded-2xl shadow-xl transform rotate-3 hover:rotate-0 transition-transform">
-                            <div className="">
-                                <div className="flex justify-between items-start">
+                        <div className="bg-white rounded-2xl shadow-xl transform rotate-3 hover:rotate-0 transition-transform p-6 border border-gray-100">
+                            {/* Email Header */}
+                            <div className="flex items-center border-b border-gray-200 pb-4 mb-4">
+                                <div className="w-10 h-10 bg-blue-500 text-white flex items-center justify-center rounded-full font-bold text-lg flex-shrink-0">
+                                    S
+                                </div>
+                                <div className="ml-3 overflow-hidden">
+                                    <p className="font-semibold text-gray-900 truncate">Your Subscription Snapshot is Ready</p>
+                                    <p className="text-sm text-gray-500 truncate">From: Snapshot Finance</p>
+                                </div>
+                            </div>
+
+                            {/* Key Stats */}
+                            <div className="bg-blue-50 rounded-lg p-4 mb-4 grid grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-xs text-gray-500 uppercase font-medium">Total Yearly</p>
+                                    <p className="text-xl font-bold text-blue-700">$1304.67</p>
                                 </div>
                                 <div>
-                                    <SnapshotCard
-                                        date="29th March 2025"
-                                        totalSpend="$1304.67"
-                                        mostExpensive={{ name: 'Anytime Fitness', amount: '$855.44' }}
-                                        subscriptions={subscriptions}
-                                    />
+                                    <p className="text-xs text-gray-500 uppercase font-medium">Most Expensive</p>
+                                    <p className="text-lg font-bold text-red-600 truncate">Anytime Fitness</p>
                                 </div>
+                            </div>
+
+                            {/* Subscription List */}
+                            <div className="space-y-2">
+                                <p className="text-sm font-semibold text-gray-700">ANZ Access Advantage:</p>
+                                <div className="space-y-2">
+                                    {subscriptions.slice(0, 3).map((sub) => (
+                                        <div key={sub.name} className="flex justify-between items-center bg-gray-50 p-2 rounded-md">
+                                            <span className="text-sm text-gray-800">{sub.name}</span>
+                                            <div className="text-right">
+                                                <span className="font-semibold text-sm text-gray-900">{sub.yearly}</span>
+                                                <span className="block text-xs text-gray-500">{sub.amount} / {sub.frequency}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <div className="text-center text-gray-400 pt-1 text-sm">...and 3 more</div>
+                                </div>
+                            </div>
+
+                            {/* Email Footer */}
+                            <div className="text-center mt-4 border-t border-gray-200 pt-3">
+                                <p className="text-xs text-gray-400">
+                                    Unlock the full report to see all details.
+                                </p>
                             </div>
                         </div>
 
@@ -153,6 +188,7 @@ export default function Landing() {
                     </motion.div>
                 </div>
             </div>
+
 
           {/* Australian Spending Statistics */}
           <section className="max-w-6xl mx-auto px-4 py-12">
