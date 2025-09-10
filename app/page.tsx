@@ -441,18 +441,6 @@ export default function Landing() {
   </motion.div>
 </motion.section>
 
-            {/* Trust Badges */}
-            <div className="max-w-6xl mx-auto px-4 py-12">
-                <div className="flex flex-wrap justify-center gap-8 items-center opacity-75">
-                    <span className="text-gray-500">Trusted by:</span>
-                    <div className="h-8 w-px bg-gray-300" />
-                    <span className="text-gray-600">Everyday Aussies</span>
-                    <div className="h-8 w-px bg-gray-300" />
-                    <span className="text-gray-600">Snapshot Finance</span>
-                    <div className="h-8 w-px bg-gray-300" />
-                    <span className="text-gray-600">2025</span>
-                </div>
-            </div>
         </div>
     );
 }

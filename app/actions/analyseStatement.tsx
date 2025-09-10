@@ -83,7 +83,7 @@ export async function analyseStatement(files: File[]) {
         Use official bank names (e.g., "CommBank Smart Access", "ANZ Progress Saver")`;
 
       const result = await genAI.models.generateContent({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-pro",
         contents: [{
           role: 'user',
           parts: [
