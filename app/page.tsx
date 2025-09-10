@@ -91,7 +91,7 @@ export default function Landing() {
                         transition={{ duration: 0.5 }}
                     >
                         <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                            Take Control Back <br></br> from <SubscriptionHeader />
+                            Take Control <br></br> over <SubscriptionHeader />
                         </h1>
                         
                         <p className="text-lg text-gray-600 mb-8">
