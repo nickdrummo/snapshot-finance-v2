@@ -59,28 +59,28 @@ export async function analyseStatement(files: File[]) {
       const base64Data = buffer.toString('base64');
       const mimeType = file.type; // e.g., 'application/pdf'
 
-      const prompt = `Analyse the content of the attached bank statement to find all 
-      subscriptions present. Find the cost of each subscription and the frequency. Output 
-      the results as a JSON object, with each subscription listed with an id (starting at 0)
-       and its associated name, cost, and frequency. Include a column named yearly but do not 
-       fill any data in this column, leaving it as -. If it is not clear the frequency of a 
-       subscription (ie only one payment showing in a monthly statement), use information 
-       available from the actual subscriptions company about the usual pricing + frequency plans 
-       available. Make sure you only output the JSON object and nothing else.
-      Identify the bank name and account title from header
+      const prompt = `Act as a financial data analyst with expertise in banking transactions and subscription identification. Your task is to review the attached bank statement and extract all recurring subscription payments. Maintain a precise and technical tone appropriate for financial reporting. The response should be structured, detailed, and accurate.
 
-        {
-          "accountTitle": "Bank Name - Account Type",
-          "subscriptions": [
-            {
-              "name": "Service Name",
-              "cost": 12.99,
-              "frequency": "monthly",
-              "yearly": "-"
-            }
-          ]
-        }
-        Use official bank names (e.g., "CommBank Smart Access", "ANZ Progress Saver")`;
+1. **Introduction**
+   - Begin by identifying the official bank name and account title from the statement header, using the exact naming conventions as found in official bank documentation (e.g., "CommBank Smart Access", "ANZ Progress Saver").
+   - Define what constitutes a subscription payment, including recurring charges for services such as streaming, software, memberships, or other automated payments.
+
+2. **Main Content Breakdown**
+   (a) Core Analysis:
+      - Examine all transaction entries to detect recurring payments that indicate active subscriptions.
+      - For each subscription, determine the service name, the cost per payment, and the payment frequency (e.g., monthly, yearly, weekly).
+      - If the frequency cannot be determined from the statement alone (such as when only a single payment appears), research the subscription provider’s standard pricing and billing cycles to make an informed estimate.
+   (b) Key Considerations:
+      - Ensure that only genuine subscriptions are included, excluding one-off purchases or irregular payments.
+      - Address any ambiguities by cross-referencing with publicly available information from the subscription provider.
+      - Leave the "yearly" field as "-" for each subscription, as instructed.
+
+3. **Conclusion & Recommendations**
+   - Summarize the findings by presenting a JSON object containing:
+     - "accountTitle": The official bank name and account type.
+     - "subscriptions": An array where each entry includes an id (starting at 0), name, cost, frequency, and yearly (set as "-").
+   - Ensure the output contains only the JSON object, with no additional commentary or explanation.
+   - Double-check for accuracy in naming conventions and data extraction, as this information may be used for financial planning or auditing purposes.`;
 
       const result = await genAI.models.generateContent({
         model: "gemini-2.5-pro",
