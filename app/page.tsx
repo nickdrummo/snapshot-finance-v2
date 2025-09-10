@@ -91,7 +91,7 @@ export default function Landing() {
                         transition={{ duration: 0.5 }}
                     >
                         <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                            Take Back Control <br></br> of <SubscriptionHeader />
+                            Take Control Back <br></br> from <SubscriptionHeader />
                         </h1>
                         
                         <p className="text-lg text-gray-600 mb-8">
@@ -111,18 +111,17 @@ export default function Landing() {
                             </div>
                             <div className="flex items-center space-x-3">
                                 <FiShield className="h-6 w-6 text-purple-500" />
-                                <span className="text-gray-700">Bank-level security & encryption</span>
+                                <span className="text-gray-700">Secure & encrypted data handling</span>
                             </div>
                         </div>
-
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg hover:shadow-blue-200 transition-all"
-                        >
-                            <Link href="/upload" className="flex items-center">
+                        <Link href="/upload" className="inline-block">
+                            <motion.button
+                                whileHover={{ scale: 1.05 }}
+                                className="bg-blue-600 text-white px-8 py-4 rounded-lg text-lg font-semibold shadow-lg hover:shadow-blue-200 transition-all flex items-center"
+                            >
                                 Get Started →
-                            </Link>
-                        </motion.button>
+                            </motion.button>
+                        </Link>
                     </motion.div>
 
                     {/* Right Column - Preview Card */}
@@ -289,19 +288,22 @@ export default function Landing() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row justify-center gap-3">
-                 <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    className="bg-white text-blue-600 px-6 py-3 rounded-lg text-base font-semibold border-2"
-                  >
-                    <Link href="/pricing">View Pricing</Link>
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-lg text-base font-semibold"
-                  >
-                    <Link href="/upload">Get Started → </Link>
-                  </motion.button>
-                  
+                  <Link href="/pricing">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      className="bg-white text-blue-600 px-6 py-3 rounded-lg text-base font-semibold border-2 w-full"
+                    >
+                      View Pricing
+                    </motion.button>
+                  </Link>
+                  <Link href="/upload">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      className="bg-blue-600 text-white px-6 py-3 rounded-lg text-base font-semibold border-2 border-transparent w-full"
+                    >
+                      Get Started →
+                    </motion.button>
+                  </Link>
                 </div>
               </div>
             </motion.div>
