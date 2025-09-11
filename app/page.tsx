@@ -139,7 +139,7 @@ export default function Landing() {
                                     S
                                 </div>
                                 <div className="ml-3 overflow-hidden">
-                                    <p className="font-semibold text-gray-900 truncate">Your Subscription Snapshot is Ready</p>
+                                    <p className="font-semibold text-gray-900 truncate">Your Subscription Snapshot</p>
                                     <p className="text-sm text-gray-500 truncate">From: Snapshot Finance</p>
                                 </div>
                             </div>
