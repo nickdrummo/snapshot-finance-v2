@@ -20,8 +20,8 @@ export default function ContactPage() {
               <FiMail className="h-10 w-10 text-blue-500 mx-auto mb-4" />
               <h2 className="text-xl font-semibold mb-2">Email Us</h2>
               <p className="text-gray-600 mb-4">For general inquiries and support, please email us directly.</p>
-              <a href="mailto:support@snapshotfinance.com" className="font-semibold text-blue-600 hover:underline">
-                support@snapshotfinance.com
+              <a href="mailto:support@snapshotfinance.com.au" className="font-semibold text-blue-600 hover:underline">
+                support@snapshotfinance.com.au
               </a>
             </div>
 
