@@ -47,7 +47,7 @@ const useTextCycler = (
 };
 
 export const SubscriptionHeader = () => {
-  const phrases: string[] = ['Subscriptions.', 'Netflix.', 'Spotify.', 'HBO Max.', 'Disney.', 'Amazon Prime.'];
+  const phrases: string[] = ['Subscriptions.', 'Netflix.', 'Spotify.', 'Memberships.', 'Kayo.', 'Disney.', 'Adobe.', 'Binge.'];
   const cycledText = useTextCycler(phrases);
 
   return (

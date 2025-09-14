@@ -91,8 +91,8 @@ export default function Landing() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.5 }}
                     >
-                        <h1 className="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-                            Take Control <br></br> over <SubscriptionHeader />
+                        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 leading-tight">
+                            Take Control <br /> of <SubscriptionHeader />
                         </h1>
                         
                         <p className="text-lg text-gray-600 mb-8">
