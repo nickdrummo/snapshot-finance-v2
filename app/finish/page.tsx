@@ -222,7 +222,7 @@ function SnapshotContent() {
         <body>
           <div class="container">
             <div class="header">
-              <h1>📊 Your Subscription Snapshot</h1>
+              <h1>Your Subscription Snapshot</h1>
             </div>
 
             <div class="card">
@@ -232,7 +232,7 @@ function SnapshotContent() {
             </div>
 
             <div class="card" style="border-color: #fc8181;">
-              <h2>💰 Most Expensive Subscription</h2>
+              <h2>Most Expensive Subscription</h2>
               <p class="warning">${mostExpensive.name}<br>
               <span style="font-size: 16px;">${formatCurrency(mostExpensive.yearly as number)}/year</span></p>
             </div>
