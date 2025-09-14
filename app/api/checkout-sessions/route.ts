@@ -1,23 +1,31 @@
 // src/app/api/checkout-sessions/route.ts
-import { supabase } from '@/lib/supabase';
+import { createSupabaseClient } from '@/lib/supabase'; // Import the function
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  typescript: true,
-});
 
 // Use existing product ID from your Stripe dashboard
 const STRIPE_PRODUCT_ID = 'prod_T1MUoXEW5piNi0'; // Replace with your actual product ID
 
 export async function POST(req: NextRequest) {
-  const { sessionId } = await req.json();
-
-  const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  const successUrl = `${origin}/finish?sessionId=${sessionId}&session_id={CHECKOUT_SESSION_ID}`;
-  const cancelUrl = `${origin}/checkout?sessionId=${sessionId}`;
-
   try {
+    // Stripe instantiation is already correct
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+    if (!stripeSecretKey) {
+      throw new Error("STRIPE_SECRET_KEY is not set in environment variables.");
+    }
+    const stripe = new Stripe(stripeSecretKey, {
+      typescript: true,
+    });
+
+    // Create the Supabase client inside the handler
+    const supabase = createSupabaseClient();
+
+    const { sessionId } = await req.json();
+
+    const origin = req.headers.get('origin') || process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const successUrl = `${origin}/finish?sessionId=${sessionId}&session_id={CHECKOUT_SESSION_ID}`;
+    const cancelUrl = `${origin}/checkout?sessionId=${sessionId}`;
+
     // Get the product details from Stripe
     const product = await stripe.products.retrieve(STRIPE_PRODUCT_ID);
     
@@ -59,7 +67,7 @@ export async function POST(req: NextRequest) {
       mode: 'payment',
       success_url: successUrl,
       cancel_url: cancelUrl,
-      allow_promotion_codes: true, // Add this line to enable the coupon field
+      allow_promotion_codes: true,
       metadata: {
         product_id: STRIPE_PRODUCT_ID,
       },

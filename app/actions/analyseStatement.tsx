@@ -3,7 +3,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
-import { supabase } from '@/lib/supabase';
+import { createSupabaseClient } from '@/lib/supabase';
 
 interface Subscription {
   id: number;
@@ -125,6 +125,7 @@ export async function analyseStatement(files: File[]) {
 
     // Save to cookies (consider database storage for production)
     // (await cookies()).set('analysis_results', JSON.stringify(allSubscriptions));
+    const supabase = createSupabaseClient();
 
     //store in supabase 
     const { error } = await supabase

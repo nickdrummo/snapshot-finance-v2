@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://snapshotfinance.com.au
+
+# Sitemaps
+Sitemap: https://snapshotfinance.com.au/sitemap.xml
