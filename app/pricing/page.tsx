@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { FiCheckCircle, FiXCircle, FiInfo, FiChevronDown, FiChevronUp, FiArrowRight } from 'react-icons/fi';
+import Footer from '@/components/Footer';
 
 const pricingTiers = [
   {
@@ -221,6 +222,7 @@ export default function PricingPage() {
           </div>
         </motion.div>
         </main>
+        <Footer />
     </div>
 );
 }

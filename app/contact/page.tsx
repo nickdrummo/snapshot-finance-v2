@@ -1,5 +1,6 @@
 'use client';
 
+import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import { FiMail, FiHelpCircle } from 'react-icons/fi';
 
@@ -37,6 +38,7 @@ export default function ContactPage() {
           </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

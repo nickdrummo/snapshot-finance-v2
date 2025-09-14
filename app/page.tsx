@@ -1,5 +1,6 @@
 'use client';
 
+import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import SnapshotCard from '@/components/SnapshotCard';
 import { SubscriptionHeader } from '@/components/TypingHeader';
@@ -479,6 +480,8 @@ export default function Landing() {
   </motion.div>
 </motion.section>
 
+                <Footer />
         </div>
+        
     );
 }

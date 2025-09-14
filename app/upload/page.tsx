@@ -6,6 +6,7 @@ import { FiUploadCloud, FiFile, FiX, FiInfo, FiLock, FiPlus, FiMinus, FiClock, F
 import Navbar from '@/components/Navbar';
 import { analyseStatement } from '../actions/analyseStatement';
 import { useRouter } from 'next/navigation';
+import Footer from '@/components/Footer';
 
 // Pricing configuration
 const PRICING = {
@@ -266,6 +267,8 @@ export default function UploadPage() {
           </button>
         </form>
       </main>
+      <Footer />
+      
 
       {/* Processing Modal */}
       <ProcessingModal isOpen={showModal} onClose={() => setShowModal(false)} />

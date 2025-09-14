@@ -1,5 +1,6 @@
 'use client';
 
+import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import { motion } from 'framer-motion';
 import { FiUpload, FiEye, FiDollarSign, FiAward, FiPieChart, FiDatabase, FiMail, FiHome, FiBookOpen, FiUsers, FiLock, FiLayers } from 'react-icons/fi';
@@ -359,6 +360,7 @@ export default function FeaturesPage() {
 					</div>
 				</motion.div>
 			</main>
+            <Footer />
 		</div>
 	);
 }
