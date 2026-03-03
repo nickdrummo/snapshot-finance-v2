@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { FiPieChart, FiMenu, FiX } from 'react-icons/fi';
+import Image from 'next/image';
+import { FiMenu, FiX } from 'react-icons/fi';
 import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 
@@ -30,7 +31,13 @@ export default function Navbar() {
     <nav className="max-w-6xl mx-auto px-4 py-6 flex justify-between items-center">
       {/* Logo */}
       <Link href="/" className="flex items-center space-x-2 z-50">
-        <FiPieChart className={`h-8 w-8 ${isMenuOpen ? 'text-gray-900' : 'text-blue-500'} transition-colors duration-300`} />
+        <Image
+          src="/favicon.ico"
+          alt="Snapshot Logo"
+          width={32}
+          height={32}
+          className="w-8 h-8"
+        />
         <span className={`text-2xl font-bold ${isMenuOpen ? 'text-gray-900' : 'text-gray-900'} transition-colors duration-300`}>Snapshot</span>
       </Link>
 

@@ -2,8 +2,9 @@
 
 import { Suspense } from 'react';
 import Navbar from '@/components/Navbar';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { FiFileText, FiArrowRight, FiPieChart, FiList, FiLock, FiDollarSign } from 'react-icons/fi';
+import { FiFileText, FiArrowRight, FiList, FiLock, FiDollarSign } from 'react-icons/fi';
 import Link from 'next/link';
 import SnapshotCard from '@/components/SnapshotCard';
 import CheckoutButton from '@/components/CheckoutButton';
@@ -144,7 +145,13 @@ function CheckoutContent() {
           >
             <div className="flex items-center mb-3">
               <div className="bg-blue-100 p-2 rounded-lg mr-3">
-                <FiPieChart className="h-6 w-6 text-blue-600" />
+                <Image
+                  src="/favicon.ico"
+                  alt="Yearly Spend"
+                  width={24}
+                  height={24}
+                  className="w-6 h-6"
+                />
               </div>
               <h3 className="text-lg font-semibold">Yearly Spend</h3>
             </div>
