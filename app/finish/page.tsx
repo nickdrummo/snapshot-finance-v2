@@ -155,36 +155,33 @@ function SnapshotContent() {
   }, [isProcessing, searchParams]);
 
   useEffect(() => {
-    if (isSuccess && accounts.length > 0 && userEmail) {
-      sendEmailReport(userEmail);
-    }
-  }, [isSuccess, accounts, userEmail]);
-
-  useEffect(() => {
-    const sessionId = searchParams.get('session_id');
+    const sessionId = searchParams.get('sessionId');
     if (!sessionId || initialEmailSent) return;
-  
+
     const checkAndSendEmail = async () => {
-      try {
-        // 1. Check sessionStorage first
-        const storageKey = `emailSent-${sessionId}`;
-        const emailWasSent = sessionStorage.getItem(storageKey);
-  
-        if (!emailWasSent && accounts.length > 0 && userEmail) {
-          // 2. Send email only if all conditions met
-          await sendEmailReport(userEmail);
-          
-          // 3. Mark as sent in sessionStorage and state
-          sessionStorage.setItem(storageKey, 'true');
-          setInitialEmailSent(true);
+      // Only send if pro analysis is successful
+      if (isSuccess && accounts.length > 0 && userEmail) {
+        try {
+          // 1. Check sessionStorage first
+          const storageKey = `emailSent-${sessionId}`;
+          const emailWasSent = sessionStorage.getItem(storageKey);
+    
+          if (!emailWasSent) {
+            // 2. Send email only if all conditions met
+            await sendEmailReport(userEmail);
+            
+            // 3. Mark as sent in sessionStorage and state
+            sessionStorage.setItem(storageKey, 'true');
+            setInitialEmailSent(true);
+          }
+        } catch (error) {
+          console.error('Error handling initial email:', error);
         }
-      } catch (error) {
-        console.error('Error handling initial email:', error);
       }
     };
-  
+
     checkAndSendEmail();
-  }, [accounts, userEmail, searchParams, initialEmailSent]);
+  }, [isSuccess, accounts, userEmail, searchParams, initialEmailSent]);
 
   const totalSubscriptions = accounts.reduce((sum, account) => sum + account.subscriptions.length, 0);
 
