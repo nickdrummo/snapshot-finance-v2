@@ -111,6 +111,11 @@ function CheckoutContent() {
     //   }
     
 
+  if (isLoading) {
+    // show skeleton layout while data loads
+    return <CheckoutSkeleton />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#F5F7FF] to-[#FFFFFF]">
       <Navbar />
