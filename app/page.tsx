@@ -382,103 +382,83 @@ export default function Landing() {
           </section>
 
           {/* User Testimonials Section */}
-<motion.section 
-  initial={{ opacity: 0 }}
-  whileInView={{ opacity: 1 }}
-  className="max-w-6xl mx-auto px-4 py-12"
->
-  <div className="text-center mb-12">
-    <h2 className="text-3xl font-bold text-gray-900 mb-4">
-      What Australians Are Saying
-    </h2>
-    <p className="text-gray-600 max-w-xl mx-auto">
-      Real people finding real savings across our suburbs
-    </p>
-  </div>
+                <motion.section 
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  className="max-w-6xl mx-auto px-4 py-12"
+                >
+                  <div className="text-center mb-12">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4">
+                      What Australians Are Saying
+                    </h2>
+                    <p className="text-gray-600 max-w-xl mx-auto">
+                      Real people finding real savings across our suburbs
+                    </p>
+                  </div>
 
-  <div className="grid md:grid-cols-3 gap-6">
-    {/* Sydney Nurse */}
-    <motion.div
-      whileHover={{ y: -5 }}
-      className="bg-white p-6 rounded-xl shadow-lg border border-gray-100"
-    >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-red-100 rounded-full">
-          <FiActivity className="w-6 h-6 text-red-500" />
-        </div>
-        <div>
-          <h3 className="font-semibold">Emma, 31</h3>
-          <span className="text-gray-500 text-sm">Surry Hills, NSW</span>
-        </div>
-      </div>
-      <p className="text-gray-700 mb-4 italic">
-        "As a nurse with shift work, I completely missed double payments for my 
-        Fitbit Premium and ClassPass. Saved $34/month just by cancelling one!"
-      </p>
-      
-    </motion.div>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {/* Sydney Nurse */}
+                    <motion.div
+                      whileHover={{ y: -5 }}
+                      className="bg-white p-6 rounded-xl shadow-lg border border-gray-100"
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-red-100 rounded-full">
+                          <FiActivity className="w-6 h-6 text-red-500" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold">Emma</h3>
+                          <span className="text-gray-500 text-sm">Surry Hills, NSW</span>
+                        </div>
+                      </div>
+                      <p className="text-gray-700 mb-4 italic">
+                        "I was still paying for CourseHero and it was costing so much, I've been out of uni for a year 😂"
+                      </p>
+                      
+                    </motion.div>
 
-    {/* Melbourne Student */}
-    <motion.div
-      whileHover={{ y: -5 }}
-      className="bg-white p-6 rounded-xl shadow-lg border border-gray-100"
-    >
-      <div className="flex items-center gap-3 mb-4">
+                    {/* Melbourne Student */}
+                    <motion.div
+                      whileHover={{ y: -5 }}
+                      className="bg-white p-6 rounded-xl shadow-lg border border-gray-100"
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        
+                        <div>
+                          <h3 className="font-semibold">Liam, 23</h3>
+                          <span className="text-gray-500 text-sm">VIC</span>
+                        </div>
+                      </div>
+                      <p className="text-gray-700 mb-4 italic">
+                        "Didn't realise that I was paying for google storage in two different Gmail accounts."
+                      </p>
+                      
+                    </motion.div>
+
+                    {/* Brisbane Parent */}
+                    <motion.div
+                      whileHover={{ y: -5 }}
+                      className="bg-white p-6 rounded-xl shadow-lg border border-gray-100"
+                    >
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="p-2 bg-green-100 rounded-full">
+                          <FiMonitor className="w-6 h-6 text-green-500" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold">Olivia</h3>
+                          <span className="text-gray-500 text-sm">QLD</span>
+                        </div>
+                      </div>
+                      <p className="text-gray-700 mb-4 italic">
+                        "Found three different kids' learning apps we weren't using anymore. 
+                        That's $45/month back into the family budget."
+                      </p>
+                      
+                    </motion.div>
+                  </div>
+
         
-        <div>
-          <h3 className="font-semibold">Liam, 23</h3>
-          <span className="text-gray-500 text-sm">Brunswick, VIC</span>
-        </div>
-      </div>
-      <p className="text-gray-700 mb-4 italic">
-        "Turns out I was paying for extra iCloud storage through both Afterpay 
-        and Zip - no wonder my budget never added up!"
-      </p>
-      
-    </motion.div>
-
-    {/* Brisbane Parent */}
-    <motion.div
-      whileHover={{ y: -5 }}
-      className="bg-white p-6 rounded-xl shadow-lg border border-gray-100"
-    >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 bg-green-100 rounded-full">
-          <FiMonitor className="w-6 h-6 text-green-500" />
-        </div>
-        <div>
-          <h3 className="font-semibold">Olivia, 37</h3>
-          <span className="text-gray-500 text-sm">Indooroopilly, QLD</span>
-        </div>
-      </div>
-      <p className="text-gray-700 mb-4 italic">
-        "Found three different kids' learning apps we weren't using anymore. 
-        That's $45/month back into the family budget!"
-      </p>
-      
-    </motion.div>
-  </div>
-
-  {/* Regional Highlight */}
-  <motion.div
-    initial={{ scale: 0.95 }}
-    whileInView={{ scale: 1 }}
-    className="mt-12 bg-blue-600 text-white rounded-2xl p-8 text-center"
-  >
-    <div className="mb-4 flex justify-center">
-      <FiDollarSign className="w-12 h-12 text-blue-200 mx-auto" />
-    </div>
-    <blockquote className="text-xl font-medium mb-4 max-w-2xl mx-auto">
-      "As a teacher in Bendigo, I discovered I'd been paying for both Bupa extras 
-      and Medibank through my union. Snapshot paid for itself 10 times over!"
-    </blockquote>
-    <p className="font-semibold">- Sarah, 42, Regional VIC</p>
-    <div className="mt-3 text-sm opacity-80 flex items-center justify-center gap-2">
-      <FiShield className="w-4 h-4" />
-      <span>Found in: HESTA super payment deductions</span>
-    </div>
-  </motion.div>
-</motion.section>
+                </motion.section>
 
                 <Footer />
         </div>
