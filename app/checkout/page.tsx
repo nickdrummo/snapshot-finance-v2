@@ -255,3 +255,65 @@ function LoadingSpinner() {
       </div>
     );
   }
+
+function CheckoutSkeleton() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-[#F5F7FF] to-[#FFFFFF]">
+      <Navbar />
+      <main className="max-w-5xl mx-auto px-4 py-12">
+        {/* Hero CTA Skeleton */}
+        <div className="text-center mb-16">
+          <div className="h-10 bg-gray-300 rounded w-3/5 mx-auto mb-4 animate-pulse" />
+          <div className="h-6 bg-gray-300 rounded w-2/5 mx-auto animate-pulse" />
+        </div>
+
+        {/* Stats Grid Skeleton */}
+        <div className="grid md:grid-cols-2 gap-6 mb-16 max-w-2xl mx-auto">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-48 animate-pulse">
+            <div className="h-6 bg-gray-200 rounded w-1/2 mb-4" />
+            <div className="h-10 bg-gray-200 rounded w-2/3 mb-2" />
+            <div className="h-4 bg-gray-200 rounded w-1/2" />
+          </div>
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 h-48 animate-pulse">
+            <div className="h-6 bg-gray-200 rounded w-1/2 mb-4" />
+            <div className="h-10 bg-gray-200 rounded w-2/3 mb-2" />
+            <div className="h-4 bg-gray-200 rounded w-1/2" />
+          </div>
+        </div>
+
+        {/* Premium Report Card with Payment Box Skeleton */}
+        <div className="grid md:grid-cols-2 gap-8 items-start mt-12">
+          {/* Report Card Skeleton */}
+          <div className="relative">
+            <div className="bg-white rounded-2xl shadow-xl p-6 h-80 animate-pulse">
+              <div className="h-full bg-gray-200 rounded" />
+            </div>
+          </div>
+
+          {/* Payment Box Skeleton */}
+          <div className="bg-white rounded-2xl shadow-sm p-6 h-80 animate-pulse">
+            <div className="flex flex-col items-center text-center mb-6">
+              <div className="h-12 w-12 bg-gray-200 rounded mb-4" />
+              <div className="h-6 bg-gray-200 rounded w-2/3 mb-2" />
+              <div className="h-4 bg-gray-200 rounded w-1/2" />
+            </div>
+
+            <div className="bg-gray-100 rounded-xl p-6 text-center mb-6">
+              <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto mb-3" />
+              <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto" />
+            </div>
+
+            <div className="h-10 bg-gray-200 rounded w-full mb-4" />
+            
+            <div className="h-4 bg-gray-200 rounded w-2/3 mx-auto" />
+          </div>
+        </div>
+
+        {/* Trust Assurance Skeleton */}
+        <div className="max-w-md mx-auto mt-12 text-center">
+          <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto animate-pulse" />
+        </div>
+      </main>
+    </div>
+  );
+}
