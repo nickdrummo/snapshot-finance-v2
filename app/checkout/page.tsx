@@ -134,6 +134,11 @@ function CheckoutContent() {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             See exactly where your money is going each year
           </p>
+          <div className="mt-6 max-w-2xl mx-auto bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <p className="text-sm text-blue-900">
+              <span className="font-semibold">Initial scan results:</span> This analysis was generated using our fast preview model. Unlock the full snapshot report with more accurate results including subscription categories, usage insights, and detailed recommendations.
+            </p>
+          </div>
         </motion.div>
 
         {/* Focused Stats Grid */}
@@ -231,7 +236,8 @@ function CheckoutContent() {
             <div className="flex items-center justify-center space-x-2 mb-3">
                 <span className="text-3xl font-bold text-gray-900">{price}</span>
             </div>
-            <p className="text-sm text-gray-600">7-day money back guarantee</p>
+            <p className="text-sm text-gray-600">One-time payment</p>
+            <p className="text-xs text-gray-500 mt-2">Includes pro-level analysis + 7-day guarantee</p>
             </div>
 
             <CheckoutButton sessionId={sessionId as string} />

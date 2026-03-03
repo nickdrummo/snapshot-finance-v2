@@ -31,9 +31,7 @@ const PRICING = {
 
 // Define our waterfall of models from best to fastest
 const MODEL_FALLBACKS = [
-  "gemini-3.1-pro-preview", 
-  "gemini-2.5-pro", 
-  "gemini-2.0-flash" // Fast and highly available
+  "gemini-2.0-flash", // Fast and highly available
 ];
 
 export async function analyseStatement(files: File[]) {
@@ -174,7 +172,8 @@ export async function analyseStatement(files: File[]) {
         session_id: sessionId,
         data: allSubscriptions,
         snapshot_price: calculatePrice(files.length),
-        expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) 
+        expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+        pro_generated: false
       });
 
     if (error) throw error;

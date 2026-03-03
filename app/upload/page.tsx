@@ -263,7 +263,7 @@ export default function UploadPage() {
               (files.length !== quantity || isSubmitting) ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {isSubmitting ? 'Processing...' : 'See your spend ->'}
+            {isSubmitting ? 'Processing...' : 'Preview Results'}
           </button>
         </form>
       </main>

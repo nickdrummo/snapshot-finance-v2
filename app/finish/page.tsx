@@ -39,6 +39,7 @@ function SnapshotContent() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [userEmail, setUserEmail] = useState('');
@@ -59,6 +60,11 @@ function SnapshotContent() {
 
         const response = await fetch(`/api/analysis/${sessionId}`);
         const resultsFull = await response.json();
+
+        if (resultsFull.isProGenerated) {
+          setIsProcessing(false);
+        }
+
         const results = resultsFull.subscriptions;
 
         const stripeSessionId = searchParams.get('session_id');
@@ -99,7 +105,50 @@ function SnapshotContent() {
     };
 
     fetchData();
+
+    const sessionId = searchParams.get('sessionId');
+    if (sessionId) {
+      fetch(`/api/analysis/${sessionId}/pro-analysis`, { method: 'POST' });
+    }
   }, []);
+
+  useEffect(() => {
+    if (!isProcessing) return;
+
+    const sessionId = searchParams.get('sessionId');
+    if (!sessionId) return;
+
+    const interval = setInterval(async () => {
+      const response = await fetch(`/api/analysis/${sessionId}`);
+      const resultsFull = await response.json();
+
+      if (resultsFull.isProGenerated) {
+        setIsProcessing(false);
+        // re-fetch data
+        const results = resultsFull.subscriptions;
+        if (results) {
+          const accountsMap = results.reduce((acc: { [key: string]: Account }, sub: Subscription) => {
+            const yearly = calculateYearlyCost(sub);
+            if (!acc[sub.accountTitle]) {
+              acc[sub.accountTitle] = {
+                title: sub.accountTitle,
+                subscriptions: [],
+                totalYearly: 0
+              };
+            }
+            acc[sub.accountTitle].subscriptions.push({ ...sub, yearly });
+            acc[sub.accountTitle].totalYearly += yearly;
+            return acc;
+          }, {} as { [key: string]: Account }); // Add type assertion here
+
+          const accountsArray: Account[] = Object.values(accountsMap);
+          setAccounts(accountsArray); // Now properly typed as Account[]
+        }
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [isProcessing, searchParams]);
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -398,7 +447,22 @@ function SnapshotContent() {
         </div>
       </header>
 
+      {isProcessing && (
+        <div className="bg-blue-100 border-b border-blue-200 p-4">
+          <div className="max-w-4xl mx-auto flex items-center">
+            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500 mr-3"></div>
+            <p className="text-blue-800 text-sm font-medium">
+              Processing your full analysis with our pro model. This may take a moment.
+            </p>
+          </div>
+        </div>
+      )}
+
       <main className="max-w-4xl mx-auto px-4 py-8">
+        {isProcessing ? (
+          <SnapshotSkeleton />
+        ) : (
+          <>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-sm p-6">
             <div className="flex items-center mb-3">
@@ -554,6 +618,8 @@ function SnapshotContent() {
             </div>
           </div>
         </div>
+        </>
+        )}
       </main>
       
     </div>
@@ -564,6 +630,31 @@ function LoadingSpinner() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+  );
+}
+
+function SnapshotSkeleton() {
+  return (
+    <div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-lg shadow-sm p-6 animate-pulse">
+          <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+          <div className="h-8 bg-gray-200 rounded w-2/3"></div>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm p-6 animate-pulse">
+          <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+          <div className="h-8 bg-gray-200 rounded w-2/3"></div>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm p-6 animate-pulse">
+          <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+          <div className="h-8 bg-gray-200 rounded w-2/3"></div>
+        </div>
+      </div>
+      <div className="bg-white rounded-lg shadow-sm p-6 animate-pulse">
+        <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
+        <div className="h-96 bg-gray-200 rounded"></div>
+      </div>
     </div>
   );
 }

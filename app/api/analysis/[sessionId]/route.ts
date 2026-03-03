@@ -23,7 +23,7 @@ export async function GET(
   
       const { data, error } = await supabase
         .from('analysis_sessions')
-        .select('data, snapshot_price')
+        .select('data, snapshot_price, pro_generated')
         .eq('session_id', sessionId) // Use destructured sessionId
         .single();
 
@@ -35,7 +35,8 @@ export async function GET(
 
     return NextResponse.json({
         subscriptions: data.data,
-        snapshot_price: data.snapshot_price
+        snapshot_price: data.snapshot_price,
+        isProGenerated: data.pro_generated
       });
   } catch (error) {
     console.error("Error in analysis route:", error); // Added for better debugging
