@@ -31,7 +31,7 @@ const PRICING = {
 
 // Define our waterfall of models from best to fastest
 const MODEL_FALLBACKS = [
-  "gemini-2.0-flash", // Fast and highly available
+  "gemini-3-flash-preview", 
 ];
 
 export async function analyseStatement(files: File[]) {
@@ -50,9 +50,22 @@ export async function analyseStatement(files: File[]) {
     let globalId = 0;
 
     const sessionId = uuidv4();
+    const supabase = createSupabaseClient();
+    const filePaths: string[] = [];
 
     for (const [index, file] of files.entries()) {
       console.log(`Processing statement ${index + 1}/${files.length}`);
+      
+      // Upload file to Supabase Storage
+      const filePath = `${sessionId}/${file.name}`;
+      const { error: storageError } = await supabase.storage
+        .from('statement-files')
+        .upload(filePath, file);
+
+      if (storageError) {
+        throw new Error(`Failed to store statement file: ${storageError.message}`);
+      }
+      filePaths.push(filePath);
       
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -164,7 +177,6 @@ export async function analyseStatement(files: File[]) {
 
     console.log(allSubscriptions);
 
-    const supabase = createSupabaseClient();
 
     const { error } = await supabase
       .from('analysis_sessions')
@@ -173,7 +185,8 @@ export async function analyseStatement(files: File[]) {
         data: allSubscriptions,
         snapshot_price: calculatePrice(files.length),
         expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-        pro_generated: false
+        pro_generated: false,
+        file_paths: filePaths
       });
 
     if (error) throw error;
