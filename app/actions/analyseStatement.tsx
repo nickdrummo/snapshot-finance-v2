@@ -29,6 +29,13 @@ const PRICING = {
   extraPricePerAccount: 2.00
 };
 
+// Define our waterfall of models from best to fastest
+const MODEL_FALLBACKS = [
+  "gemini-3.1-pro-preview", 
+  "gemini-2.5-pro", 
+  "gemini-2.0-flash" // Fast and highly available
+];
+
 export async function analyseStatement(files: File[]) {
   const calculatePrice = (qty: number) => {
     if (qty <= 3) return PRICING.bundles.find(b => b.quantity === qty)?.price || PRICING.basePrice;
@@ -71,7 +78,6 @@ export async function analyseStatement(files: File[]) {
       - Address any ambiguities by cross-referencing with publicly available information from the subscription provider.
       - Leave the "yearly" field as "-" for each subscription, as instructed.`;
 
-      // Define the strict schema for the model to follow
       const bankAnalysisSchema = {
         type: Type.OBJECT,
         properties: {
@@ -97,28 +103,50 @@ export async function analyseStatement(files: File[]) {
         required: ["accountTitle", "subscriptions"],
       };
 
-      const result = await genAI.models.generateContent({
-        model: "gemini-3.1-pro-preview", 
-        contents: [{
-          role: 'user',
-          parts: [
-            { text: prompt },
-            {
-              inlineData: {
-                mimeType: mimeType,
-                data: base64Data,
-              },
-            },
-          ],
-        }],
-        config: {
-          responseMimeType: "application/json", 
-          responseSchema: bankAnalysisSchema, // Enforces the structure
-        }
-      });
+      let responseText = null;
 
-      const responseText = result.text;
-      if (!responseText) throw new Error('No Gemini response');
+      // FALLBACK WATERFALL
+      for (let i = 0; i < MODEL_FALLBACKS.length; i++) {
+        const currentModel = MODEL_FALLBACKS[i];
+        try {
+          console.log(`Attempting analysis with model: ${currentModel}`);
+          
+          const result = await genAI.models.generateContent({
+            model: currentModel, 
+            contents: [{
+              role: 'user',
+              parts: [
+                { text: prompt },
+                {
+                  inlineData: {
+                    mimeType: mimeType,
+                    data: base64Data,
+                  },
+                },
+              ],
+            }],
+            config: {
+              responseMimeType: "application/json", 
+              responseSchema: bankAnalysisSchema, 
+            }
+          });
+
+          responseText = result.text;
+          break; // Success! Break out of the fallback loop
+          
+        } catch (error: any) {
+          console.warn(`Model ${currentModel} failed: ${error.message}`);
+          
+          // If we've exhausted all models, or if it's a completely different fatal error, throw
+          const isOverloaded = error.message?.includes('503') || error.message?.includes('429');
+          if (i === MODEL_FALLBACKS.length - 1 || !isOverloaded) {
+            throw new Error(`Analysis failed after trying available models. Last error: ${error.message}`);
+          }
+          // Otherwise, the loop continues to the next model silently
+        }
+      }
+
+      if (!responseText) throw new Error('No valid response generated from any model.');
 
       try {
         const analysis: BankAnalysis = JSON.parse(responseText);
