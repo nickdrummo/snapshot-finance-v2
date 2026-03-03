@@ -1,6 +1,6 @@
 'use server'
 
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import { cookies } from 'next/headers';
 import { v4 as uuidv4 } from 'uuid';
 import { createSupabaseClient } from '@/lib/supabase';
@@ -29,8 +29,6 @@ const PRICING = {
   extraPricePerAccount: 2.00
 };
 
-
-
 export async function analyseStatement(files: File[]) {
   const calculatePrice = (qty: number) => {
     if (qty <= 3) return PRICING.bundles.find(b => b.quantity === qty)?.price || PRICING.basePrice;
@@ -46,9 +44,7 @@ export async function analyseStatement(files: File[]) {
     const allSubscriptions: Subscription[] = [];
     let globalId = 0;
 
-    //intialise session id for each analysis.
     const sessionId = uuidv4();
-
 
     for (const [index, file] of files.entries()) {
       console.log(`Processing statement ${index + 1}/${files.length}`);
@@ -57,7 +53,7 @@ export async function analyseStatement(files: File[]) {
       const buffer = Buffer.from(arrayBuffer);
 
       const base64Data = buffer.toString('base64');
-      const mimeType = file.type; // e.g., 'application/pdf'
+      const mimeType = file.type; 
 
       const prompt = `Act as a financial data analyst with expertise in banking transactions and subscription identification. Your task is to review the attached bank statement and extract all recurring subscription payments. Maintain a precise and technical tone appropriate for financial reporting. The response should be structured, detailed, and accurate.
 
@@ -73,17 +69,36 @@ export async function analyseStatement(files: File[]) {
    (b) Key Considerations:
       - Ensure that only genuine subscriptions are included, excluding one-off purchases or irregular payments.
       - Address any ambiguities by cross-referencing with publicly available information from the subscription provider.
-      - Leave the "yearly" field as "-" for each subscription, as instructed.
+      - Leave the "yearly" field as "-" for each subscription, as instructed.`;
 
-3. **Conclusion & Recommendations**
-   - Summarize the findings by presenting a JSON object containing:
-     - "accountTitle": The official bank name and account type.
-     - "subscriptions": An array where each entry includes an id (starting at 0), name, cost, frequency, and yearly (set as "-").
-   - Ensure the output contains only the JSON object, with no additional commentary or explanation.
-   - Double-check for accuracy in naming conventions and data extraction, as this information may be used for financial planning or auditing purposes.`;
+      // Define the strict schema for the model to follow
+      const bankAnalysisSchema = {
+        type: Type.OBJECT,
+        properties: {
+          accountTitle: {
+            type: Type.STRING,
+            description: "The official bank name and account type from the statement header.",
+          },
+          subscriptions: {
+            type: Type.ARRAY,
+            description: "A list of identified recurring subscription payments.",
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                name: { type: Type.STRING, description: "Name of the subscription service" },
+                cost: { type: Type.NUMBER, description: "Cost per payment" },
+                frequency: { type: Type.STRING, description: "Payment frequency (e.g., monthly, yearly, weekly)" },
+                yearly: { type: Type.STRING, description: "Always set to '-'" },
+              },
+              required: ["name", "cost", "frequency", "yearly"],
+            },
+          },
+        },
+        required: ["accountTitle", "subscriptions"],
+      };
 
       const result = await genAI.models.generateContent({
-        model: "gemini-2.5-pro",
+        model: "gemini-3.1-pro-preview", 
         contents: [{
           role: 'user',
           parts: [
@@ -96,16 +111,17 @@ export async function analyseStatement(files: File[]) {
             },
           ],
         }],
+        config: {
+          responseMimeType: "application/json", 
+          responseSchema: bankAnalysisSchema, // Enforces the structure
+        }
       });
 
       const responseText = result.text;
       if (!responseText) throw new Error('No Gemini response');
 
       try {
-        const jsonStart = responseText.indexOf('{');
-        const jsonEnd = responseText.lastIndexOf('}');
-        const jsonString = responseText.slice(jsonStart, jsonEnd + 1);
-        const analysis: BankAnalysis = JSON.parse(jsonString);
+        const analysis: BankAnalysis = JSON.parse(responseText);
 
         const processed = analysis.subscriptions.map(sub => ({
           ...sub,
@@ -122,24 +138,18 @@ export async function analyseStatement(files: File[]) {
 
     console.log(allSubscriptions);
 
-
-    // Save to cookies (consider database storage for production)
-    // (await cookies()).set('analysis_results', JSON.stringify(allSubscriptions));
     const supabase = createSupabaseClient();
 
-    //store in supabase 
     const { error } = await supabase
       .from('analysis_sessions')
       .insert({
         session_id: sessionId,
         data: allSubscriptions,
         snapshot_price: calculatePrice(files.length),
-        expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) // 1 week
-
+        expires_at: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7) 
       });
 
     if (error) throw error;
-
 
     return { 
       success: true,
