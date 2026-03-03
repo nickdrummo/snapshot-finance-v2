@@ -5,11 +5,11 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(
   request: Request,
-  { params }: { params: { sessionId: string } }
+  context: { params: { sessionId: string } }
 ) {
   try {
     const supabase = createSupabaseClient();
-    const { sessionId } = params;
+    const { sessionId } = context.params;
 
     if (!sessionId) {
       return NextResponse.json(
