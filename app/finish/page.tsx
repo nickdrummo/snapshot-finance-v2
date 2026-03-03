@@ -40,6 +40,7 @@ function SnapshotContent() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(true);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [userEmail, setUserEmail] = useState('');
@@ -63,39 +64,40 @@ function SnapshotContent() {
 
         if (resultsFull.isProGenerated) {
           setIsProcessing(false);
-        }
+          setIsSuccess(true);
+          // re-fetch data
+          const results = resultsFull.subscriptions;
 
-        const results = resultsFull.subscriptions;
+          const stripeSessionId = searchParams.get('session_id');
+          const stripeResponse = await fetch(`/api/get-session?session_id=${stripeSessionId}`);
 
-        const stripeSessionId = searchParams.get('session_id');
-        const stripeResponse = await fetch(`/api/get-session?session_id=${stripeSessionId}`);
+          const session = await stripeResponse.json();
+          // setUserEmail(session.customer_details?.email)
+          
+          // 3. Set user email
+          if (session?.customer_details?.email) {
+            setUserEmail(session.customer_details.email);
+          }
 
-        const session = await stripeResponse.json();
-        // setUserEmail(session.customer_details?.email)
-        
-        // 3. Set user email
-        if (session?.customer_details?.email) {
-          setUserEmail(session.customer_details.email);
-        }
+          if (results) {
+            // Explicitly type the accountsMap
+            const accountsMap = results.reduce((acc: { [key: string]: Account }, sub: Subscription) => {
+              const yearly = calculateYearlyCost(sub);
+              if (!acc[sub.accountTitle]) {
+                acc[sub.accountTitle] = {
+                  title: sub.accountTitle,
+                  subscriptions: [],
+                  totalYearly: 0
+                };
+              }
+              acc[sub.accountTitle].subscriptions.push({ ...sub, yearly });
+              acc[sub.accountTitle].totalYearly += yearly;
+              return acc;
+            }, {} as { [key: string]: Account }); // Add type assertion here
 
-        if (results) {
-          // Explicitly type the accountsMap
-          const accountsMap = results.reduce((acc: { [key: string]: Account }, sub: Subscription) => {
-            const yearly = calculateYearlyCost(sub);
-            if (!acc[sub.accountTitle]) {
-              acc[sub.accountTitle] = {
-                title: sub.accountTitle,
-                subscriptions: [],
-                totalYearly: 0
-              };
-            }
-            acc[sub.accountTitle].subscriptions.push({ ...sub, yearly });
-            acc[sub.accountTitle].totalYearly += yearly;
-            return acc;
-          }, {} as { [key: string]: Account }); // Add type assertion here
-
-          const accountsArray: Account[] = Object.values(accountsMap);
-          setAccounts(accountsArray); // Now properly typed as Account[]
+            const accountsArray: Account[] = Object.values(accountsMap);
+            setAccounts(accountsArray); // Now properly typed as Account[]
+          }
         }
       } catch (error) {
         console.error('Error:', error);
@@ -124,6 +126,8 @@ function SnapshotContent() {
 
       if (resultsFull.isProGenerated) {
         setIsProcessing(false);
+        setIsSuccess(true);
+
         // re-fetch data
         const results = resultsFull.subscriptions;
         if (results) {
@@ -149,6 +153,12 @@ function SnapshotContent() {
 
     return () => clearInterval(interval);
   }, [isProcessing, searchParams]);
+
+  useEffect(() => {
+    if (isSuccess && accounts.length > 0 && userEmail) {
+      sendEmailReport(userEmail);
+    }
+  }, [isSuccess, accounts, userEmail]);
 
   useEffect(() => {
     const sessionId = searchParams.get('session_id');
@@ -453,6 +463,21 @@ function SnapshotContent() {
             <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500 mr-3"></div>
             <p className="text-blue-800 text-sm font-medium">
               Processing your full analysis with our pro model. This may take a moment.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {isSuccess && (
+        <div className="bg-green-100 border-b border-green-200 p-4">
+          <div className="max-w-4xl mx-auto flex items-center">
+            <div className="bg-green-500 rounded-full p-1 mr-3">
+              <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p className="text-green-800 text-sm font-medium">
+              Success! Your full analysis is ready. We've sent a copy to your email.
             </p>
           </div>
         </div>
