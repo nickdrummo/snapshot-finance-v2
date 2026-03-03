@@ -51,9 +51,9 @@ export async function analyseStatement(files: File[]) {
 
     const sessionId = uuidv4();
     const supabase = createSupabaseClient();
-    const filePaths: string[] = [];
-
-    for (const [index, file] of files.entries()) {
+    
+    // Process files in parallel
+    const processFile = async (file: File, index: number) => {
       console.log(`Processing statement ${index + 1}/${files.length}`);
       
       // Upload file to Supabase Storage
@@ -65,7 +65,6 @@ export async function analyseStatement(files: File[]) {
       if (storageError) {
         throw new Error(`Failed to store statement file: ${storageError.message}`);
       }
-      filePaths.push(filePath);
       
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
@@ -161,19 +160,30 @@ export async function analyseStatement(files: File[]) {
 
       try {
         const analysis: BankAnalysis = JSON.parse(responseText);
-
-        const processed = analysis.subscriptions.map(sub => ({
-          ...sub,
-          id: globalId++,
-          accountTitle: analysis.accountTitle || `Account ${index + 1}`
-        }));
-
-        allSubscriptions.push(...processed);
+        return {
+            analysis,
+            filePath
+        };
       } catch (parseError) {
         console.error('Parsing failed:', parseError, responseText);
         throw new Error('Failed to parse bank account details');
       }
-    }
+    };
+
+    // Execute all file processing in parallel
+    const results = await Promise.all(files.map((file, index) => processFile(file, index)));
+    
+    // Collect all subscriptions and file paths
+    const filePaths = results.map(r => r.filePath);
+    
+    results.forEach((result, index) => {
+        const processed = result.analysis.subscriptions.map(sub => ({
+          ...sub,
+          id: globalId++,
+          accountTitle: result.analysis.accountTitle || `Account ${index + 1}`
+        }));
+        allSubscriptions.push(...processed);
+    });
 
     console.log(allSubscriptions);
 

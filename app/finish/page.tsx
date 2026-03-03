@@ -62,24 +62,25 @@ function SnapshotContent() {
         const response = await fetch(`/api/analysis/${sessionId}`);
         const resultsFull = await response.json();
 
-        if (resultsFull.isProGenerated) {
-          setIsProcessing(false);
-          setIsSuccess(true);
-          // re-fetch data
-          const results = resultsFull.subscriptions;
-
-          const stripeSessionId = searchParams.get('session_id');
+        // Always fetch user email from Stripe session
+        const stripeSessionId = searchParams.get('session_id');
+        if (stripeSessionId) {
           const stripeResponse = await fetch(`/api/get-session?session_id=${stripeSessionId}`);
-
           const session = await stripeResponse.json();
-          // setUserEmail(session.customer_details?.email)
-          
-          // 3. Set user email
           if (session?.customer_details?.email) {
             setUserEmail(session.customer_details.email);
           }
+        }
 
-          if (results) {
+        if (resultsFull.isProGenerated) {
+          setIsProcessing(false);
+          setIsSuccess(true);
+        }
+
+        // re-fetch data
+        const results = resultsFull.subscriptions;
+
+        if (results) {
             // Explicitly type the accountsMap
             const accountsMap = results.reduce((acc: { [key: string]: Account }, sub: Subscription) => {
               const yearly = calculateYearlyCost(sub);
@@ -97,7 +98,6 @@ function SnapshotContent() {
 
             const accountsArray: Account[] = Object.values(accountsMap);
             setAccounts(accountsArray); // Now properly typed as Account[]
-          }
         }
       } catch (error) {
         console.error('Error:', error);
@@ -462,7 +462,7 @@ function SnapshotContent() {
           <div className="max-w-4xl mx-auto flex items-center">
             <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-blue-500 mr-3"></div>
             <p className="text-blue-800 text-sm font-medium">
-              Processing your full analysis with our pro model. This may take a moment.
+              Processing your full analysis with our advanced model. This can take up to a few minutes.
             </p>
           </div>
         </div>

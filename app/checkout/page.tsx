@@ -136,7 +136,7 @@ function CheckoutContent() {
           </p>
           <div className="mt-6 max-w-2xl mx-auto bg-blue-50 border border-blue-200 rounded-xl p-4">
             <p className="text-sm text-blue-900">
-              <span className="font-semibold">Initial scan results:</span> This analysis was generated using our fast preview model. Unlock the full snapshot report with more accurate results including subscription categories, usage insights, and detailed recommendations.
+              <span className="font-semibold">Initial scan results:</span> This analysis was created using our fast preview model. The full purchasable report uses our advanced model for the greatest accuracy.
             </p>
           </div>
         </motion.div>

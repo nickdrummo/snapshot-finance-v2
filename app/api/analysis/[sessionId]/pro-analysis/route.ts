@@ -55,7 +55,7 @@ export async function POST(
     const allSubscriptions: Subscription[] = [];
     let globalId = 0;
 
-    for (const [index, filePath] of sessionData.file_paths.entries()) {
+    const processFile = async (filePath: string, index: number) => {
       const { data: fileData, error: fileError } = await supabase.storage
         .from('statement-files')
         .download(filePath);
@@ -140,13 +140,19 @@ export async function POST(
       if (!responseText) throw new Error('No valid response from pro models.');
 
       const analysis: BankAnalysis = JSON.parse(responseText);
-      const processed = analysis.subscriptions.map(sub => ({
+      return analysis;
+    };
+
+    const results = await Promise.all(sessionData.file_paths.map((filePath: string, index: number) => processFile(filePath, index)));
+
+    results.forEach((analysis, index) => {
+      const processed = analysis.subscriptions.map((sub: any) => ({
         ...sub,
         id: globalId++,
         accountTitle: analysis.accountTitle || `Account ${index + 1}`
       }));
       allSubscriptions.push(...processed);
-    }
+    });
 
     const { error: updateError } = await supabase
       .from('analysis_sessions')
