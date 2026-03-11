@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FiPieChart } from 'react-icons/fi';
+import Image from 'next/image';
 
 export default function Footer() {
   return (
@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <FiPieChart className="h-7 w-7 text-blue-500" />
+            <Image src="/icon.png" alt="Snapshot Finance" width={28} height={28} className="w-7 h-7" />
             <span className="text-xl font-bold text-gray-900">Snapshot</span>
           </div>
 

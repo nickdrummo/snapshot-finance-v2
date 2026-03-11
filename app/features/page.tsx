@@ -102,7 +102,7 @@ export default function FeaturesPage() {
                         transition={{ duration: 0.5, delay: 0.1 }}
                         className="lg:col-span-1"
                     >
-                        <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-8 h-full">
+                        <div className="bg-white rounded-2xl shadow-md border border-gray-200 p-4 md:p-8 h-full">
                             <div className="text-center mb-6">
                                 <h3 className="text-xl font-bold text-gray-900 mb-1 flex items-center justify-center gap-2">
                                     <FiMail /> Your Emailed Report
@@ -112,18 +112,19 @@ export default function FeaturesPage() {
                                 <div className="flex items-center justify-around gap-4">
                                     <div className="text-center">
                                         <span className="text-xs text-gray-500">Total Yearly </span>
-                                        <span className="text-lg font-bold text-blue-700">{formatCurrency(totalYearly)}</span>
+                                        <span className="text-base font-bold text-blue-700">{formatCurrency(totalYearly)}</span>
                                     </div>
                                     <div className="text-center">
                                         <span className="text-xs text-gray-500">Most Expensive </span>
-                                        <span className="text-lg font-bold text-red-600">{mostExpensive.name}</span>
+                                        <span className="text-base font-bold text-red-600">{mostExpensive.name}</span>
                                     </div>
                                 </div>
                             </div>
                             {exampleAccounts.map((account) => (
                                 <div key={account.title} className="mb-4">
                                     <div className="font-semibold text-gray-800 mb-1">{account.title}</div>
-                                    <table className="w-full text-sm mb-2 table-fixed">
+                                    <div className="overflow-x-auto">
+                                    <table className="w-full min-w-[340px] text-sm mb-2 table-fixed">
                                         <thead>
                                             <tr className="bg-gray-100">
                                                 <th className="w-4/12 py-1 px-2 text-left font-medium">Subscription</th>
@@ -145,6 +146,7 @@ export default function FeaturesPage() {
                                             ))}
                                         </tbody>
                                     </table>
+                                    </div>
                                 </div>
                             ))}
                             <div className="text-center text-xs text-gray-400 mt-6 border-t pt-4">
@@ -170,7 +172,7 @@ export default function FeaturesPage() {
 							Once unlocked, you get a comprehensive view with powerful insights.
 						</p>
 					</div>
-					<div className="bg-white rounded-2xl shadow-md border border-gray-200 p-8">
+					<div className="bg-white rounded-2xl shadow-md border border-gray-200 p-4 md:p-8">
 						{/* Top Stats */}
 						<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 							<div className="flex flex-col items-center p-4 bg-gray-50 rounded-lg">
